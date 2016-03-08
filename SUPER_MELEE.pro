@@ -10,13 +10,13 @@ TEMPLATE = app
 SOURCES += \
   main.cpp \
   frames/game_frame.cpp \
-    core/vessel.cpp \
     core/battle_scene.cpp \
-    frames/lobby_frame.cpp
+    frames/lobby_frame.cpp \
+    actors/vessel.cpp \
+    core/game_scene.cpp
 
 HEADERS += \
     actors/vessel.h \
-    actors/bullet.h \
     core/graphics_item.h \
     core/game_item.h \
     net/server.h \
@@ -40,7 +40,9 @@ HEADERS += \
     chip/random_control.h \
     nav_bridge.h \
     equipment/engine.h \
-    equipment/battery.h
+    equipment/battery.h \
+    weapons/fusion_blaster.h \
+    actors/basic_bullet.h
 
 FORMS += frames/forms/game_frame.ui \
     frames/forms/lobby_frame.ui

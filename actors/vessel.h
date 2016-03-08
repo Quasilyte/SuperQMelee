@@ -13,7 +13,14 @@
 
 class DirectControl;
 
-class Vessel: public GameItem {
+class Vessel: public QObject, public GameItem {
+  Q_OBJECT
+
+public slots:
+  void gameTickEvent() {
+    ctl->operate(nav);
+  }
+
 public:
   Vessel(Control *ctl, QString imagePath);
 
@@ -25,9 +32,11 @@ public:
     rotateRight(rotationSpeed);
   }
 
-  void onDestroy();
-
-  NavBridge* getNavBridge() const { return nav; }
+  void onDestroy() {
+    if (ctl) {
+      GameScene::disconnect(this);
+    }
+  }
 
 protected:
   Engine *engine;
@@ -36,6 +45,7 @@ protected:
   qreal rotationSpeed;
 
 private:
+  Control *ctl;
   NavBridge *nav;
   friend NavBridge;
 };

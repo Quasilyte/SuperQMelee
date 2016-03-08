@@ -33,6 +33,9 @@ public:
       break;
     case Qt::Key_BracketLeft:
       ctl->deactivateFire1();
+      break;
+    default:
+      event->ignore();
     }
   }
 

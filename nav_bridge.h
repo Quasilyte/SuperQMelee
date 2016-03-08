@@ -1,18 +1,13 @@
 #pragma once
 
-#include "core/game_scene.h"
 #include "actors/vessel.h"
 
 class Control;
 
-class NavBridge: public QObject {
-  Q_OBJECT
-
-public slots:
-  void gameTickEvent();
-
+class NavBridge {
 public:
-  NavBridge(Vessel *vessel, Control *ctl);
+  NavBridge(Vessel *vessel):
+  vessel{vessel} {}
 
   void usePrimary() {
     vessel->primary->fire();
@@ -30,15 +25,6 @@ public:
     vessel->right();
   }
 
-  void enable() {
-    GameScene::connect(this);
-  }
-
-  void disable() {
-    GameScene::disconnect(this);
-  }
-
 private:
   Vessel *vessel;
-  Control *ctl;
 };

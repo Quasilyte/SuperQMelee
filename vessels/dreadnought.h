@@ -2,7 +2,7 @@
 
 #include "actors/vessel.h"
 #include "core/game_scene.h"
-#include "actors/bullet.h"
+#include "weapons/fusion_blaster.h"
 
 class Dreadnought: public Vessel {
 public:

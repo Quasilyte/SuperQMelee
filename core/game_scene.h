@@ -1,12 +1,12 @@
 #pragma once
 
-#include "graphics_item.h"
-
 #include <QGraphicsScene>
 #include <QGraphicsItem>
 #include <QTimer>
 
 #include <cassert>
+
+class GameItem;
 
 inline unsigned long long operator"" _fps(unsigned long long fps) {
   return 1000 / fps;
@@ -33,6 +33,8 @@ public:
   static void removeItem(QGraphicsItem *item) {
     scene->removeItem(item);
   }
+
+  static void destroy(GameItem *item);
 
   static void connect(QObject *item) {
     QObject::connect(timer, SIGNAL(timeout()), item, SLOT(gameTickEvent()));

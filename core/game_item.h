@@ -6,6 +6,10 @@
 #include <QString>
 #include <qdebug.h>
 
+class GameItem;
+
+inline void inflictDamage(GameItem *target, int damage);
+
 class GameItem: public GraphicsItem {
 public:
   GameItem(QString imagePath, qreal degrees, qreal x, qreal y):
@@ -18,17 +22,18 @@ public:
     GameScene::addItem(this);
   }
 
-  void receiveDamage(int damage) {
-    health -= damage;
-
-    if (health <= 0) {
-      GameScene::removeItem(this);
-      onDestroy();
-    }
-  }
-
   virtual void onDestroy() {}
 
 protected:
   int health;
+
+  friend void inflictDamage(GameItem *target, int damage);
 };
+
+inline void inflictDamage(GameItem *target, int damage) {
+  target->health -= damage;
+
+  if (target->health <= 0) {
+    GameScene::destroy(target);
+  }
+}
