@@ -38,6 +38,10 @@ public:
     this->name = name;
   }
 
+  void setTeam(Team team) {
+    this->team = team;
+  }
+
 private:
   QString name;
   QString ip;

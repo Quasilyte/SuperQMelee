@@ -25,7 +25,8 @@ public:
     PLAYER_LIST_REQUEST, // C->S
     PLAYER_LIST, // S->C
     NEW_PLAYER, // S->C
-    TEXT, // S<->C
+    PRIVATE_TEXT, // S<->C
+    PUBLIC_TEXT, // S<->C
     UPPER_BOUND
   };
 

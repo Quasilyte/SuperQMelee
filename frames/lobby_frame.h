@@ -29,10 +29,12 @@ private slots:
   void setupConnections();
   void onJoined(QVector<Player>);
   void onNewPlayer(Player);
-  void onNewText(QString);
-  // void newChatMessage(QString msg);
+  void onNewPublicText(QString);
+  void onNewPrivateText(QString);
 
-  void on_sendMessageButton_clicked();
+  void on_sendPublicMessageButton_clicked();
+
+  void on_sendPrivateMessageButton_clicked();
 
 private:
   Ui::LobbyFrame *ui;
@@ -45,5 +47,6 @@ private:
   int findEmptyPlayerSlot() const;
   void initClient(const QString& name, const QString& ip);
   void toggleUi();
+  void appendChatMessage(const QString& text, Qt::GlobalColor color);
 };
 

@@ -19,7 +19,8 @@ class Client: public QObject {
 
 signals:
   void joined(QVector<Player>);
-  void gotText(QString);
+  void gotPrivateText(QString);
+  void gotPublicText(QString);
   void gotNewPlayer(Player);
 
 private slots:
@@ -38,10 +39,12 @@ private slots:
     case Message::NEW_PLAYER:
       emit gotNewPlayer(Player::Codec::fromSocket(socket));
       break;
-    case Message::TEXT:
-      emit gotText(QString{socket->readAll()});
+    case Message::PUBLIC_TEXT:
+      emit gotPublicText(QString{socket->readAll()});
       break;
-
+    case Message::PRIVATE_TEXT:
+      emit gotPrivateText(QString{socket->readAll()});
+      break;
     default:
       qDebug() << "Client: unknown message type";
     }
@@ -85,9 +88,12 @@ private slots:
       disconnect(socket, SIGNAL(readyRead()), this, SLOT(sendAuth()));
       connect(socket, SIGNAL(readyRead()), this, SLOT(recvAuthConfirm()));
 
+      player->setTeam(readByte(socket));
+
       Message out{Message::AUTH_DATA, in.getId(), player->getName().length()};
       out.append(player->getName());
       socket->write(out.getData(), out.getTotalSize());
+
 
       auth(in.getId());
     }
@@ -126,10 +132,19 @@ public:
     return player;
   }
 
-  void sendText(QString text) {
+  void sendPublicText(QString text) {
     assert(hasAuth());
 
-    Message out{Message::TEXT, id, text.length()};
+    Message out{Message::PUBLIC_TEXT, id, text.length()};
+    out.append(text);
+    socket->write(out.getData(), out.getTotalSize());
+  }
+
+  void sendPrivateText(QString text) {
+    assert(hasAuth());
+
+    Message out{Message::PRIVATE_TEXT, id, text.length() + 1};
+    out.embed(player->getTeam());
     out.append(text);
     socket->write(out.getData(), out.getTotalSize());
   }

@@ -58,11 +58,22 @@ void LobbyFrame::onJoined(QVector<Player> players) {
   disconnect(client, SIGNAL(joined(QVector<Player>)), this, SLOT(onJoined(QVector<Player>)));
 
   connect(client, SIGNAL(gotNewPlayer(Player)), this, SLOT(onNewPlayer(Player)));
-  connect(client, SIGNAL(gotText(QString)), this, SLOT(onNewText(QString)));
+  connect(client, SIGNAL(gotPrivateText(QString)), this, SLOT(onNewPrivateText(QString)));
+  connect(client, SIGNAL(gotPublicText(QString)), this, SLOT(onNewPublicText(QString)));
 }
 
-void LobbyFrame::onNewText(QString text) {
-  ui->messages->addItem(text);
+void LobbyFrame::onNewPrivateText(QString text) {
+  appendChatMessage(text, Qt::darkBlue);
+}
+
+void LobbyFrame::onNewPublicText(QString text) {
+  appendChatMessage(text, Qt::black);
+}
+
+void LobbyFrame::appendChatMessage(const QString& text, Qt::GlobalColor color) {
+  auto wget = ui->messages;
+  wget->addItem(text);
+  wget->item(wget->count() - 1)->setForeground(color);
 }
 
 void LobbyFrame::onNewPlayer(Player player) {
@@ -175,9 +186,20 @@ int LobbyFrame::findEmptyPlayerSlot() const {
 }
 */
 
-void LobbyFrame::on_sendMessageButton_clicked() {
-  //auto bytes = ui->messageInput->text().toLatin1();
-  //client->sendMessage(bytes.constData());
-  client->sendText(ui->messageInput->text());
-  //client->sendMessage(QString::number(client->getId()) + ":" + ui->messageInput->text());
+void LobbyFrame::on_sendPublicMessageButton_clicked() {
+  auto text = ui->messageInput->text();
+  if (!text.isEmpty()) {
+    client->sendPublicText(text);
+  } else {
+    Messenger::warn("Enter your message");
+  }
+}
+
+void LobbyFrame::on_sendPrivateMessageButton_clicked() {
+  auto text = ui->messageInput->text();
+  if (!text.isEmpty()) {
+    client->sendPrivateText(text);
+  } else {
+    Messenger::warn("Enter your message");
+  }
 }

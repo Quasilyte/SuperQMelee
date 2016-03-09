@@ -34,7 +34,7 @@ class Server: public QObject {
     socket->write(out.getData(), out.getTotalSize());
   }
 
-  void handleText(QTcpSocket *socket, const Message& in) {
+  void handlePublicText(QTcpSocket *socket, const Message& in) {
     auto sender = clients[in.getId()]->getPlayer();
     Message::Size size =
         sender->getName().length() + Constexpr::strlen("[]") + in.getSize();
@@ -44,7 +44,28 @@ class Server: public QObject {
       auto client = clients[i];
 
       if (client->hasAuth()) {
-        Message out{Message::TEXT, client->getId(), size};
+        Message out{Message::PUBLIC_TEXT, client->getId(), size};
+        out.append('[');
+        out.append(sender->getName());
+        out.append(']')->append(' ');
+        out.append(messageBody);
+        client->getSocket()->write(out.getData(), out.getTotalSize());
+      }
+    }
+  }
+
+  void handlePrivateText(QTcpSocket *socket, const Message& in) {
+    auto sender = clients[in.getId()]->getPlayer();
+    Message::Size size =
+        sender->getName().length() + Constexpr::strlen("[]") + in.getSize() + 1;
+    auto team = readByte(socket);
+    auto messageBody = socket->readAll();
+
+    for (int i = 0; i < connections; ++i) {
+      auto client = clients[i];
+      qDebug() << team << "vs" << client->getPlayer()->getTeam();
+      if (client->hasAuth() && client->getPlayer()->getTeam() == team) {
+        Message out{Message::PRIVATE_TEXT, client->getId(), size};
         out.append('[');
         out.append(sender->getName());
         out.append(']')->append(' ');
@@ -108,8 +129,10 @@ private slots:
         handleAuth(socket, in); break;
       case in.PLAYER_LIST_REQUEST:
         handlePlayerListRequest(socket, in); break;
-      case in.TEXT:
-        handleText(socket, in); break;
+      case in.PUBLIC_TEXT:
+        handlePublicText(socket, in); break;
+      case in.PRIVATE_TEXT:
+        handlePrivateText(socket, in); break;
       default:
         qDebug() << "Server: unknown message type" << in.getType();
       }
@@ -190,7 +213,8 @@ private slots:
       clients[connections] = new Client{socket, player};
       connect(socket, SIGNAL(readyRead()), this, SLOT(gotBytes()));
 
-      Message msg{Message::AUTH_DATA_REQUEST, connections, 0};
+      Message msg{Message::AUTH_DATA_REQUEST, connections, 1};
+      msg.embed(connections + 1);
       socket->write(msg.getData(), msg.getTotalSize());
       connections += 1;
     } else {

@@ -78,10 +78,10 @@
       <set>QAbstractItemView::NoEditTriggers</set>
      </property>
      <attribute name="horizontalHeaderVisible">
-      <bool>true</bool>
+      <bool>false</bool>
      </attribute>
      <attribute name="verticalHeaderVisible">
-      <bool>true</bool>
+      <bool>false</bool>
      </attribute>
      <row>
       <property name="text">
@@ -203,7 +203,11 @@
      </property>
      <layout class="QGridLayout" name="sendMessageGrid">
       <item row="0" column="1">
-       <widget class="QLineEdit" name="messageInput"/>
+       <widget class="QLineEdit" name="messageInput">
+        <property name="maxLength">
+         <number>164</number>
+        </property>
+       </widget>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="messageLabel">
@@ -212,10 +216,17 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="sendMessageButton">
+      <item row="0" column="3">
+       <widget class="QPushButton" name="sendPublicMessageButton">
         <property name="text">
-         <string>Send</string>
+         <string>Send to all</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="sendPrivateMessageButton">
+        <property name="text">
+         <string>Send to team</string>
         </property>
        </widget>
       </item>
