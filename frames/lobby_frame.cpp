@@ -2,6 +2,7 @@
 #include "ui_lobby_frame.h"
 #include "ui/messenger.h"
 #include "net/route.h"
+#include "net/socket.h"
 
 LobbyFrame::LobbyFrame(QWidget *parent):
 QMainWindow(parent), ui(new Ui::LobbyFrame) {
@@ -40,7 +41,7 @@ void LobbyFrame::toggleUi() {
 }
 
 void LobbyFrame::initClient(const QString& name, const QString& ip) {
-  client = new Client{new QTcpSocket{}};
+  client = new Client{new Socket{}};
   client->getPlayer()->setName(name);
   client->enable();
 

@@ -5,6 +5,8 @@
 #include <QByteArray>
 #include <QTcpSocket>
 
+#include "socket.h"
+
 #include <limits>
 
 class Message {
@@ -38,7 +40,7 @@ public:
 
   Message() {}
 
-  Message(QTcpSocket *socket) {
+  Message(Socket *socket) {
     initFromSocket(socket);
   }
 
@@ -71,7 +73,7 @@ public:
     bytea.append(static_cast<char>(byte));
   }
 
-  bool isBroken(QTcpSocket *socket) {
+  bool isBroken(Socket *socket) {
     return socket->bytesAvailable() != size;
   }
 
@@ -83,7 +85,7 @@ public:
     return bytea.data();
   }
 
-  int getTotalSize() const noexcept {
+  qint64 getTotalSize() const noexcept {
     return bytea.length();
   }
 
@@ -119,7 +121,7 @@ private:
     }
   }
 
-  void readMetaData(QTcpSocket *socket) {
+  void readMetaData(Socket *socket) {
     socket->read(reinterpret_cast<char*>(this), META_DATA_SIZE);
   }
 
@@ -127,7 +129,7 @@ private:
     bytea.append(reinterpret_cast<char*>(this), META_DATA_SIZE);
   }
 
-  void initFromSocket(QTcpSocket *socket) {
+  void initFromSocket(Socket *socket) {
     if (socket->bytesAvailable() >= META_DATA_SIZE) {
       readMetaData(socket);
       validate();

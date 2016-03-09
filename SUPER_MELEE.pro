@@ -14,7 +14,9 @@ SOURCES += \
     frames/lobby_frame.cpp \
     actors/vessel.cpp \
     core/game_scene.cpp \
-    net/server.cpp
+    net/server.cpp \
+    net/clients_iter.cpp \
+    net/messages/players_list.cpp
 
 HEADERS += \
     actors/vessel.h \
@@ -47,10 +49,13 @@ HEADERS += \
     net/conn/client_connection.h \
     net/conn/connection.h \
     net/utils.h \
-    net/packet/assigned_id.h \
     net/config.h \
     net/message.h \
-    utils/constexpr.h
+    utils/constexpr.h \
+    net/messages/header.h \
+    net/messages/message_type.h \
+    net/socket.h \
+    net/clients_iter.h
 
 FORMS += frames/forms/game_frame.ui \
     frames/forms/lobby_frame.ui

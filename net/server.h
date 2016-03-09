@@ -2,6 +2,7 @@
 
 #include "route.h"
 #include "client.h"
+#include "clients_iter.h"
 
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
@@ -13,76 +14,43 @@
 class Server: public QObject {
   Q_OBJECT
 
-  void handlePlayerListRequest(QTcpSocket *socket, const Message& in) {
-    Message out{Message::PLAYER_LIST, in.getId(), Message::MAX_SIZE};
-
-    for (int i = 0; i < connections; ++i) {
-      auto client = clients[i];
-
-      if (client->hasAuth()) {
-        auto player = client->getPlayer();
-        qDebug() << "put" << player->getName();
-
-        out.embed(player->getName());
-        out.embed(player->getIp());
-        out.embed(player->getTeam());
-      }
-    }
-
-    qDebug() << "size is" << out.getTotalSize() << "for" << socket->socketDescriptor();
-
-    socket->write(out.getData(), out.getTotalSize());
+  void handlePlayerListRequest(Socket *socket, const Message& in) {
+    socket->write(PlayerList{in.getId(), ClientsIter{clients, connections}});
   }
 
   void handlePublicText(QTcpSocket *socket, const Message& in) {
     auto sender = clients[in.getId()]->getPlayer();
-    Message::Size size =
-        sender->getName().length() + Constexpr::strlen("[]") + in.getSize();
     auto messageBody = socket->readAll();
 
-    for (int i = 0; i < connections; ++i) {
-      auto client = clients[i];
-
-      if (client->hasAuth()) {
-        Message out{Message::PUBLIC_TEXT, client->getId(), size};
-        out.append('[');
-        out.append(sender->getName());
-        out.append(']')->append(' ');
-        out.append(messageBody);
-        client->getSocket()->write(out.getData(), out.getTotalSize());
-      }
+    ClientsIter iter{clients, connections};
+    while (auto client = iter.next()) {
+      client->getSocket()->write(
+        PublicText{client->getId(), sender->getName(), messageBody}
+      );
     }
   }
 
-  void handlePrivateText(QTcpSocket *socket, const Message& in) {
+  void handlePrivateText(Socket *socket, const Message& in) {
     auto sender = clients[in.getId()]->getPlayer();
-    Message::Size size =
-        sender->getName().length() + Constexpr::strlen("[]") + in.getSize() + 1;
     auto team = readByte(socket);
     auto messageBody = socket->readAll();
 
-    for (int i = 0; i < connections; ++i) {
-      auto client = clients[i];
-      qDebug() << team << "vs" << client->getPlayer()->getTeam();
-      if (client->hasAuth() && client->getPlayer()->getTeam() == team) {
-        Message out{Message::PRIVATE_TEXT, client->getId(), size};
-        out.append('[');
-        out.append(sender->getName());
-        out.append(']')->append(' ');
-        out.append(messageBody);
-        client->getSocket()->write(out.getData(), out.getTotalSize());
+    ClientsIter iter{clients, connections};
+    while (auto client = iter.next()) {
+      if (client->getPlayer()->getTeam() == team) {
+        client->getSocket()->write(
+          PrivateText{client->getId(), sender->getName(), messageBody}
+        );
       }
     }
   }
 
-  void handleChangeTeam(QTcpSocket *socket, const Message& in) {
+  void handleChangeTeam(Socket *socket, const Message& in) {
     auto sender = clients[in.getId()];
     sender->setTeam(readByte(socket));
-
-
   }
 
-  void handleAuth(QTcpSocket *socket, const Message& in) {
+  void handleAuth(Socket *socket, const Message& in) {
     auto newClient = clients[in.getId()];
     auto nameBytes = socket->readAll();
 
@@ -90,22 +58,18 @@ class Server: public QObject {
       auto newPlayer = newClient->getPlayer();
       newPlayer->setName(QString{nameBytes});
 
-      Message resp{in.AUTH_CONFIRM, in.getId()};
-      socket->write(resp.getData(), resp.getTotalSize());
+      socket->write(AuthConfirm{in.getId()});
 
       qDebug() << "given auth to" << newPlayer->getName();
 
       auto size = Player::Codec::sizeOf(newPlayer);
-      for (int i = 0; i < connections; ++i) {
-        auto client = clients[i];
-
-        if (client->hasAuth()) {
-          Message out{in.NEW_PLAYER, client->getId(), size};
-          out.embed(newPlayer->getName());
-          out.embed(newPlayer->getIp());
-          out.embed(newPlayer->getTeam());
-          client->getSocket()->write(out.getData(), out.getTotalSize());
-        }
+      ClientsIter iter{clients, connections};
+      while (auto client = iter.next()) {
+        Message out{in.NEW_PLAYER, client->getId(), size};
+        out.embed(newPlayer->getName());
+        out.embed(newPlayer->getIp());
+        out.embed(newPlayer->getTeam());
+        client->getSocket()->write(out.getData(), out.getTotalSize());
       }
 
       newClient->auth(in.getId());
@@ -116,7 +80,7 @@ class Server: public QObject {
 
 private slots:
   void gotBytes() {
-    auto socket = static_cast<QTcpSocket*>(sender());
+    auto socket = static_cast<Socket*>(sender());
 
     Message in{socket};
 
@@ -212,7 +176,7 @@ private slots:
 
   void acceptConnection() {
     if (connections < MAX_PLAYERS) {
-      auto socket = server->nextPendingConnection();
+      auto socket = static_cast<Socket*>(server->nextPendingConnection());
 
       auto player = new Player{
         socket->peerAddress().toString(),
@@ -222,9 +186,9 @@ private slots:
       clients[connections] = new Client{socket, player};
       connect(socket, SIGNAL(readyRead()), this, SLOT(gotBytes()));
 
-      Message msg{Message::AUTH_DATA_REQUEST, connections, 1};
-      msg.embed(connections);
-      socket->write(msg.getData(), msg.getTotalSize());
+      auto id = connections;
+      auto team = connections;
+      socket->write(AuthDataRequest{id, team});
       connections += 1;
     } else {
       qDebug() << "rejected connection due to limits";

@@ -12,7 +12,8 @@
 #define LOBBY_MODE 1
 
 // http://www.star-control.com/hosted/scsaga/shipspic.htm
-
+// BUGS:
+// * disconnect + connect = crash
 int main(int argc, char *argv[]) {
   QApplication app{argc, argv};
   app.setStyle("gtk");

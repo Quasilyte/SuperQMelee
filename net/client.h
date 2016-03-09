@@ -11,6 +11,8 @@
 
 #include "net/message.h"
 #include "ui/messenger.h"
+#include "net/messages/header.h"
+#include "net/socket.h"
 
 #include "utils.h"
 
@@ -100,12 +102,12 @@ private slots:
   }
 
 public:
-  Client(QTcpSocket *socket):
+  Client(Socket *socket):
   socket{socket}, player{new Player{}} {
     assert(socket != nullptr);
   }
 
-  Client(QTcpSocket *socket, Player *player):
+  Client(Socket *socket, Player *player):
   socket{socket}, player{player} {
     assert(socket != nullptr);
   }
@@ -124,7 +126,7 @@ public:
     return id != DEFAULT_ID;
   }
 
-  QTcpSocket* getSocket() const noexcept {
+  Socket* getSocket() const noexcept {
     return socket;
   }
 
@@ -142,19 +144,20 @@ public:
 
   void sendPublicText(QString text) {
     assert(hasAuth());
-
-    Message out{Message::PUBLIC_TEXT, id, text.length()};
-    out.append(text);
-    socket->write(out.getData(), out.getTotalSize());
+    socket->write(PublicText{id, text});
   }
 
   void sendPrivateText(QString text) {
     assert(hasAuth());
 
+    socket->write(PrivateText{id, player->getTeam(), text});
+
+    /*
     Message out{Message::PRIVATE_TEXT, id, text.length() + 1};
     out.embed(player->getTeam());
     out.append(text);
     socket->write(out.getData(), out.getTotalSize());
+    */
   }
 
   void joinServer(Route route) {
@@ -188,6 +191,7 @@ private:
   static const Message::Id DEFAULT_ID = -1;
 
   Message::Id id = DEFAULT_ID;
-  QTcpSocket *socket;
+  // QTcpSocket *socket;
+  Socket *socket;
   Player *player;
 };

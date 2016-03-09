@@ -5,6 +5,7 @@
 
 #include "utils.h"
 #include "config.h"
+#include "socket.h"
 
 class Player {
 public:
@@ -58,7 +59,7 @@ public:
     return name + ip + team;
   }
 
-  static Player fromSocket(QTcpSocket *socket) {
+  static Player fromSocket(Socket *socket) {
     static char nameBuf[Config::NICKNAME_MAX_LEN];
     static char ipBuf[Config::IP_MAX_LEN];
 

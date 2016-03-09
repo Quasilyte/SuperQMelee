@@ -1,8 +1,8 @@
 #pragma once
 
-#include <QTcpSocket>
+#include "socket.h"
 
-inline qint8 readByte(QTcpSocket *socket) {
+inline qint8 readByte(Socket *socket) {
   qint8 byte;
   socket->read(reinterpret_cast<char*>(&byte), 1);
 
