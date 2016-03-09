@@ -9,7 +9,7 @@
 #include <memory>
 #include <QApplication>
 
-#define LOBBY_MODE 0
+#define LOBBY_MODE 1
 
 // http://www.star-control.com/hosted/scsaga/shipspic.htm
 

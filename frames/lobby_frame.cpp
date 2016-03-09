@@ -42,14 +42,40 @@ void LobbyFrame::toggleUi() {
 void LobbyFrame::initClient(const QString& name, const QString& ip) {
   client = new Client{new QTcpSocket{}};
   client->getPlayer()->setName(name);
-  client->bindEvents();
+  client->enable();
 
   client->joinServer(Route{ip, 8080});
+  connect(client, SIGNAL(joined(QVector<Player>)), this, SLOT(onJoined(QVector<Player>)));
+  // connect(client, SIGNAL(authentificated()), this, SLOT(setupConnections()));
+}
 
-  connect(client, SIGNAL(broadcast(QString)), this, SLOT(introduce(QString)));
+void LobbyFrame::onJoined(QVector<Player> players) {
+  qDebug() << "JOINED!" << players.size();
+  foreach (auto player, players) {
+    addPlayer(player);
+  }
+
+  disconnect(client, SIGNAL(joined(QVector<Player>)), this, SLOT(onJoined(QVector<Player>)));
+
+  connect(client, SIGNAL(gotNewPlayer(Player)), this, SLOT(onNewPlayer(Player)));
+  connect(client, SIGNAL(gotText(QString)), this, SLOT(onNewText(QString)));
+}
+
+void LobbyFrame::onNewText(QString text) {
+  ui->messages->addItem(text);
+}
+
+void LobbyFrame::onNewPlayer(Player player) {
+  addPlayer(player);
+}
+
+void LobbyFrame::setupConnections() {
+  qDebug() << "got auth!! yeah";
 }
 
 void LobbyFrame::introduce(QString response) {
+  qDebug() << response;
+  /*
   auto idAndIp = response.split(":");
   QString id = idAndIp[0];
   QString ip = idAndIp[1];
@@ -60,6 +86,7 @@ void LobbyFrame::introduce(QString response) {
   client->sendMessage(auth);
 
   client->auth(id.toInt(), client->getPlayer()->getName());
+  */
 }
 
 void LobbyFrame::on_joinHostButton_clicked() {
@@ -74,8 +101,11 @@ void LobbyFrame::on_joinHostButton_clicked() {
   }
 }
 
-void LobbyFrame::updateChat(QString batch) {
-  auto messages = batch.split(";");
+/*
+void LobbyFrame::updateChat(QByteArray batch) {
+  qDebug() << "text msg:" << QString{batch};
+
+  auto messages = batch.split(';');
 
   foreach (auto message, messages) {
     auto parts = message.split("|");
@@ -86,7 +116,7 @@ void LobbyFrame::updateChat(QString batch) {
       ui->messages->addItem(parts[1]);
     }
   }
-}
+}*/
 
 void LobbyFrame::on_disconnectButton_clicked() {
   if (Messenger::confirm("Are you sure?")) {
@@ -112,6 +142,15 @@ void LobbyFrame::on_disconnectButton_clicked() {
   }
 }
 
+void LobbyFrame::addPlayer(const Player &player) {
+  auto wget = ui->players;
+  wget->item(playerCount, 0)->setText(player.getName());
+  wget->item(playerCount, 1)->setText(player.getIp());
+  wget->item(playerCount, 2)->setText(QString::number(player.getTeam()));
+  playerCount += 1;
+}
+
+/*
 bool LobbyFrame::addPlayer(const QString& name, const QString& ip) {
   int emptySlot = findEmptyPlayerSlot();
   if (emptySlot == -1) {
@@ -122,8 +161,9 @@ bool LobbyFrame::addPlayer(const QString& name, const QString& ip) {
   ui->players->item(emptySlot, 1)->setText(ip);
 
   return true;
-}
+}*/
 
+/*
 int LobbyFrame::findEmptyPlayerSlot() const {
   for (int i = 0; i < ui->players->rowCount(); ++i) {
     if (ui->players->item(i, 0)->text().isEmpty()) {
@@ -133,7 +173,11 @@ int LobbyFrame::findEmptyPlayerSlot() const {
 
   return -1;
 }
+*/
 
 void LobbyFrame::on_sendMessageButton_clicked() {
-  client->sendMessage(QString::number(client->getId()) + ":" + ui->messageInput->text());
+  //auto bytes = ui->messageInput->text().toLatin1();
+  //client->sendMessage(bytes.constData());
+  client->sendText(ui->messageInput->text());
+  //client->sendMessage(QString::number(client->getId()) + ":" + ui->messageInput->text());
 }

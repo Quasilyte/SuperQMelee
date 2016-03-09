@@ -8,12 +8,13 @@ TARGET = SUPER_MELEE
 TEMPLATE = app
 
 SOURCES += \
-  main.cpp \
-  frames/game_frame.cpp \
+    main.cpp \
+    frames/game_frame.cpp \
     core/battle_scene.cpp \
     frames/lobby_frame.cpp \
     actors/vessel.cpp \
-    core/game_scene.cpp
+    core/game_scene.cpp \
+    net/server.cpp
 
 HEADERS += \
     actors/vessel.h \
@@ -42,7 +43,14 @@ HEADERS += \
     equipment/engine.h \
     equipment/battery.h \
     weapons/fusion_blaster.h \
-    actors/basic_bullet.h
+    actors/basic_bullet.h \
+    net/conn/client_connection.h \
+    net/conn/connection.h \
+    net/utils.h \
+    net/packet/assigned_id.h \
+    net/config.h \
+    net/message.h \
+    utils/constexpr.h
 
 FORMS += frames/forms/game_frame.ui \
     frames/forms/lobby_frame.ui

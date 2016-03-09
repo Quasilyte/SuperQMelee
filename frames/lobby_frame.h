@@ -24,8 +24,13 @@ private slots:
 
   void on_joinHostButton_clicked();
 
-  void updateChat(QString newMessage);
+  // void updateChat(QByteArray newMessage);
   void introduce(QString id);
+  void setupConnections();
+  void onJoined(QVector<Player>);
+  void onNewPlayer(Player);
+  void onNewText(QString);
+  // void newChatMessage(QString msg);
 
   void on_sendMessageButton_clicked();
 
@@ -33,8 +38,10 @@ private:
   Ui::LobbyFrame *ui;
   Server *server = nullptr;
   Client *client = nullptr;
+  unsigned playerCount = 0;
 
-  bool addPlayer(const QString& name, const QString& ip);
+  // bool addPlayer(const QString& name, const QString& ip);
+  void addPlayer(const Player& player);
   int findEmptyPlayerSlot() const;
   void initClient(const QString& name, const QString& ip);
   void toggleUi();

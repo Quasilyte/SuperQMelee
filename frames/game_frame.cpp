@@ -51,5 +51,5 @@ void GameFrame::on_pushButton_clicked() {
 
 void GameFrame::on_pushButton_2_clicked() {
   qDebug() << "writing?";
-  client->sendMessage("!!!!!");
+  client->sendText("!!!!!");
 }
