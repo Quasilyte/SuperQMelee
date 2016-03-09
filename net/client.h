@@ -132,6 +132,14 @@ public:
     return player;
   }
 
+  void setTeam(int team) {
+    assert(hasAuth());
+
+    Message out{Message::CHANGE_TEAM, id, 1};
+    out.embed(static_cast<Player::Team>(team));
+    socket->write(out.getData(), out.getTotalSize());
+  }
+
   void sendPublicText(QString text) {
     assert(hasAuth());
 

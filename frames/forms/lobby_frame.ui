@@ -232,12 +232,43 @@
       </item>
      </layout>
     </widget>
+    <widget class="QComboBox" name="comboBox">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>10</y>
+       <width>101</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>team 0</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>team 1</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>team 2</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>team 3</string>
+      </property>
+     </item>
+    </widget>
     <zorder>layoutWidget</zorder>
     <zorder>playersLabel</zorder>
     <zorder>chatLabel</zorder>
     <zorder>messages</zorder>
     <zorder>players</zorder>
     <zorder>disconnectButton</zorder>
+    <zorder>comboBox</zorder>
    </widget>
    <widget class="QGroupBox" name="conectionBox">
     <property name="geometry">

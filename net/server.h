@@ -75,6 +75,13 @@ class Server: public QObject {
     }
   }
 
+  void handleChangeTeam(QTcpSocket *socket, const Message& in) {
+    auto sender = clients[in.getId()];
+    sender->setTeam(readByte(socket));
+
+
+  }
+
   void handleAuth(QTcpSocket *socket, const Message& in) {
     auto newClient = clients[in.getId()];
     auto nameBytes = socket->readAll();
@@ -133,6 +140,8 @@ private slots:
         handlePublicText(socket, in); break;
       case in.PRIVATE_TEXT:
         handlePrivateText(socket, in); break;
+      case in.CHANGE_TEAM:
+        handleChangeTeam(socket, in); break;
       default:
         qDebug() << "Server: unknown message type" << in.getType();
       }
@@ -207,14 +216,14 @@ private slots:
 
       auto player = new Player{
         socket->peerAddress().toString(),
-        static_cast<Player::Team>(connections + 1)
+        static_cast<Player::Team>(connections)
       };
 
       clients[connections] = new Client{socket, player};
       connect(socket, SIGNAL(readyRead()), this, SLOT(gotBytes()));
 
       Message msg{Message::AUTH_DATA_REQUEST, connections, 1};
-      msg.embed(connections + 1);
+      msg.embed(connections);
       socket->write(msg.getData(), msg.getTotalSize());
       connections += 1;
     } else {

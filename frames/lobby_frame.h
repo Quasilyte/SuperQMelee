@@ -36,6 +36,8 @@ private slots:
 
   void on_sendPrivateMessageButton_clicked();
 
+  void on_comboBox_currentIndexChanged(int index);
+
 private:
   Ui::LobbyFrame *ui;
   Server *server = nullptr;

@@ -203,3 +203,7 @@ void LobbyFrame::on_sendPrivateMessageButton_clicked() {
     Messenger::warn("Enter your message");
   }
 }
+
+void LobbyFrame::on_comboBox_currentIndexChanged(int index) {
+  qDebug() << index;
+}

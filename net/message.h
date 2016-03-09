@@ -27,6 +27,7 @@ public:
     NEW_PLAYER, // S->C
     PRIVATE_TEXT, // S<->C
     PUBLIC_TEXT, // S<->C
+    CHANGE_TEAM, // S<->C
     UPPER_BOUND
   };
 
