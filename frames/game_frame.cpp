@@ -4,6 +4,7 @@
 #include "net/route.h"
 #include "net/player.h"
 #include "vessels/dreadnought.h"
+#include "vessels/marauder.h"
 #include "core/game_scene.h"
 #include "chip/random_control.h"
 
@@ -22,7 +23,7 @@ GameFrame::GameFrame(QWidget *parent):
   scene->setBackgroundBrush(pim);
 
   ctl = new DirectControl{};
-  dr = new Dreadnought{ctl};
+  dr = new Marauder{ctl};
 
   dr->setPos(32, 32);
 

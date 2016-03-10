@@ -4,6 +4,8 @@ QT += core gui network # multimedia
 # LIBS += -L/home/quasilyte/STUDY/qt/super_melee/build-SUPER_MELEE-Desktop-Debug/ -lQtMultimedia
 # INCLUDEPATH += /usr/include/x86_64-linux-gnu/qt5/
 
+LIBS += -lvlc
+
 TARGET = SUPER_MELEE
 TEMPLATE = app
 
@@ -16,7 +18,8 @@ SOURCES += \
     core/game_scene.cpp \
     net/server.cpp \
     net/clients_iter.cpp \
-    net/messages/players_list.cpp
+    net/messages/players_list.cpp \
+    audio.cpp
 
 HEADERS += \
     actors/vessel.h \
@@ -55,7 +58,10 @@ HEADERS += \
     net/messages/header.h \
     net/messages/message_type.h \
     net/socket.h \
-    net/clients_iter.h
+    net/clients_iter.h \
+    audio.h \
+    vessels/marauder.h \
+    weapons/blade_launcher.h
 
 FORMS += frames/forms/game_frame.ui \
     frames/forms/lobby_frame.ui

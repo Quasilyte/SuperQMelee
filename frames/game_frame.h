@@ -1,7 +1,7 @@
 #pragma once
 
 #include "net/client.h"
-#include "vessels/dreadnought.h"
+#include "vessels/marauder.h"
 #include "chip/dicrect_control.h"
 
 #include <QMainWindow>
@@ -74,7 +74,7 @@ private slots:
 private:
   Ui::GameFrame *ui;
   Client *client = nullptr;
-  Dreadnought *dr;
+  Marauder *dr;
   DirectControl *ctl;
   QTimer *timer;
 };

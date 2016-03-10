@@ -5,11 +5,13 @@
 #include "net/client.h"
 #include "net/player.h"
 #include "net/route.h"
+#include "audio.h"
+#include <unistd.h>
 
 #include <memory>
 #include <QApplication>
 
-#define LOBBY_MODE 1
+#define LOBBY_MODE 0
 
 // http://www.star-control.com/hosted/scsaga/shipspic.htm
 // BUGS:
@@ -17,16 +19,16 @@
 int main(int argc, char *argv[]) {
   QApplication app{argc, argv};
   app.setStyle("gtk");
+  MediaPlayer::init();
 
 # if LOBBY_MODE == 1
   LobbyFrame frame;
 # else
   GameFrame frame;
+  MediaPlayer music{MediaFile{"audio/battle.mod"}};
+  music.play();
 # endif
   frame.show();
-
-  // Client iskander{std::unique_ptr<Player>{new Player{"Iskander"}}};
-  // iskander.joinServer(Route{});
 
   return app.exec();
 }
