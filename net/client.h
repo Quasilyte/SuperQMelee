@@ -59,8 +59,7 @@ private slots:
       disconnect(socket, SIGNAL(readyRead()), this, SLOT(recvAuthConfirm()));
       connect(socket, SIGNAL(readyRead()), this, SLOT(recvPlayerList()));
 
-      Message out{in.PLAYER_LIST_REQUEST, id};
-      socket->write(out.getData(), out.getTotalSize());
+      socket->write(PlayerListRequest{id});
     }
   }
 
@@ -92,10 +91,7 @@ private slots:
 
       player->setTeam(readByte(socket));
 
-      Message out{Message::AUTH_DATA, in.getId(), player->getName().length()};
-      out.append(player->getName());
-      socket->write(out.getData(), out.getTotalSize());
-
+      socket->write(AuthData{in.getId(), player->getName()});
 
       auth(in.getId());
     }

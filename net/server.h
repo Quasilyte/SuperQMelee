@@ -62,14 +62,9 @@ class Server: public QObject {
 
       qDebug() << "given auth to" << newPlayer->getName();
 
-      auto size = Player::Codec::sizeOf(newPlayer);
       ClientsIter iter{clients, connections};
       while (auto client = iter.next()) {
-        Message out{in.NEW_PLAYER, client->getId(), size};
-        out.embed(newPlayer->getName());
-        out.embed(newPlayer->getIp());
-        out.embed(newPlayer->getTeam());
-        client->getSocket()->write(out.getData(), out.getTotalSize());
+        client->getSocket()->write(NewPlayer{client->getId(), newPlayer});
       }
 
       newClient->auth(in.getId());

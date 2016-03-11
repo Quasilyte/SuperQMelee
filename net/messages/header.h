@@ -10,6 +10,8 @@
 #include <limits>
 #include <QString>
 
+class Player;
+
 class MessageHeader {
 public:
   class Exception{};
@@ -108,7 +110,7 @@ struct AuthDataRequest: public XMessage {
 
 struct AuthConfirm: public XMessage {
   AuthConfirm(MessageHeader::Id id):
-  XMessage{TYPE, id, 0} {}
+  XMessage{TYPE, id} {}
 
   static const auto TYPE = MessageType::AUTH_CONFIRM;
 };
@@ -134,4 +136,26 @@ struct PrivateText: public XMessage {
   }
 
   static const auto TYPE = MessageType::PRIVATE_TEXT;
+};
+
+struct AuthData: public XMessage {
+  AuthData(MessageHeader::Id id, QString name):
+  XMessage{TYPE, id, name.length()} {
+    bytes.append(name);
+  }
+
+  static const auto TYPE = MessageType::AUTH_DATA;
+};
+
+struct PlayerListRequest: public XMessage {
+  PlayerListRequest(MessageHeader::Id id):
+  XMessage{TYPE, id} {}
+
+  static const auto TYPE = MessageType::PLAYER_LIST_REQUEST;
+};
+
+struct NewPlayer: public XMessage {
+  NewPlayer(MessageHeader::Id id, Player *player);
+
+  static const auto TYPE = MessageType::NEW_PLAYER;
 };
