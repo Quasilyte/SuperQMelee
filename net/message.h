@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #include "config.h"
 
 #include <QByteArray>
@@ -147,3 +148,4 @@ private:
     "platform data type size expectations"
   );
 };
+*/

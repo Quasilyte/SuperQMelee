@@ -14,12 +14,12 @@
 class Server: public QObject {
   Q_OBJECT
 
-  void handlePlayerListRequest(Socket *socket, const Message& in) {
-    socket->write(PlayerList{in.getId(), ClientsIter{clients, connections}});
+  void handlePlayerListRequest(Socket *socket, MessageHeader::Id id) {
+    socket->write(PlayerList{id, ClientsIter{clients, connections}});
   }
 
-  void handlePublicText(QTcpSocket *socket, const Message& in) {
-    auto sender = clients[in.getId()]->getPlayer();
+  void handlePublicText(QTcpSocket *socket, MessageHeader::Id id) {
+    auto sender = clients[id]->getPlayer();
     auto messageBody = socket->readAll();
 
     ClientsIter iter{clients, connections};
@@ -30,8 +30,8 @@ class Server: public QObject {
     }
   }
 
-  void handlePrivateText(Socket *socket, const Message& in) {
-    auto sender = clients[in.getId()]->getPlayer();
+  void handlePrivateText(Socket *socket, MessageHeader::Id id) {
+    auto sender = clients[id]->getPlayer();
     auto team = readByte(socket);
     auto messageBody = socket->readAll();
 
@@ -52,15 +52,15 @@ class Server: public QObject {
   }
   */
 
-  void handleAuth(Socket *socket, const Message& in) {
-    auto newClient = clients[in.getId()];
+  void handleAuth(Socket *socket, MessageHeader::Id id) {
+    auto newClient = clients[id];
     auto nameBytes = socket->readAll();
 
     if (!newClient->hasAuth()) {
       auto newPlayer = newClient->getPlayer();
       newPlayer->setName(QString{nameBytes});
 
-      socket->write(AuthConfirm{in.getId()});
+      socket->write(AuthConfirm{id});
 
       qDebug() << "given auth to" << newPlayer->getName();
 
@@ -69,7 +69,7 @@ class Server: public QObject {
         client->getSocket()->write(NewPlayer{client->getId(), newPlayer});
       }
 
-      newClient->auth(in.getId());
+      newClient->auth(id);
     } else {
       qDebug() << "double auth from" << QString{nameBytes};
     }
@@ -79,96 +79,39 @@ private slots:
   void gotBytes() {
     auto socket = static_cast<Socket*>(sender());
 
-    Message in{socket};
+    MessageHeader in{socket};
+    auto id = in.getId();
 
-    if (in.getId() > connections) {
-      qDebug() << "Server: bad id" << in.getId();
+    if (id > connections) {
+      qDebug() << "Server: bad id" << id;
       return;
     }
 
-    auto client = clients[in.getId()];
+    auto client = clients[id];
     if (client->hasAuth()) {
       qDebug() << "request from" << client->getPlayer()->getName() << socket->socketDescriptor();
     }
 
     if (in.getSize() == socket->bytesAvailable()) {
       switch (in.getType()) {
-      case in.AUTH_DATA:
-        handleAuth(socket, in); break;
-      case in.PLAYER_LIST_REQUEST:
-        handlePlayerListRequest(socket, in); break;
-      case in.PUBLIC_TEXT:
-        handlePublicText(socket, in); break;
-      case in.PRIVATE_TEXT:
-        handlePrivateText(socket, in); break;
+      case AuthData::TYPE:
+        handleAuth(socket, id); break;
+      case PlayerListRequest::TYPE:
+        handlePlayerListRequest(socket, id); break;
+      case PublicText::TYPE:
+        handlePublicText(socket, id); break;
+      case PrivateText::TYPE:
+        handlePrivateText(socket, id); break;
       /*case in.CHANGE_TEAM:
         handleChangeTeam(socket, in); break;*/
       default:
-        qDebug() << "Server: unknown message type" << in.getType();
+        qDebug() << "Server: unknown message type" << static_cast<int>(in.getType());
       }
     } else {
       // We are ignoring corrupted/partial packets
       qDebug() << "expected" << in.getSize()
                << "bytes got" << socket->bytesAvailable();
     }
-
-    // socket->read(reinterpret_cast<char*>(&pack), pack.META_DATA_SIZE);
-    //pack.dump();
-    //quint8 size;
-    //qint8 type;
-    //qint8 id;
-    /*
-    qDebug() << "got" << socket->bytesAvailable() << "bytes";
-
-    socket->getChar((char*)&size);
-    socket->getChar((char*)&type);
-    socket->getChar((char*)&id);
-    qDebug() << type << size << id << socket->bytesAvailable();
-    */
-
-    /*
-    auto message = socket->readAll();
-    qDebug() << "server got" << message;
-
-    auto idAndText = message.split(':');
-    if (idAndText.length() != 2) {
-      return;
-    }
-    auto id = idAndText[0][0];
-    auto text = idAndText[1];
-    if (id > MAX_PLAYERS) {
-      return;
-    }
-
-    auto client = clients[id];
-    auto name = client->getPlayer()->getName();
-    if (client->hasAuth()) {
-      auto msg = ("1|" + name + + ": " + text).toUtf8();
-      for (int i = 0; i < connections; ++i) {
-        if (clients[i]->hasAuth()) {
-
-          clients[i]->getSocket()->write(msg);
-        }
-      }
-    } else {
-      qDebug() << "reg client " + text << "with id " << id;
-      client->auth(id);
-      client->getPlayer()->setName(text);
-      auto msg = ("0|" + text + "|" + socket->peerAddress().toString()).toUtf8();
-
-      for (int i = 0; i < connections; ++i) {
-        if (clients[i]->hasAuth()) {
-          clients[i]->getSocket()->write(msg);
-        }
-      }
-
-      for (int i = 0; i < connections; ++i) {
-        if (clients[i] != client) {
-          auto msg2 = ";0|" + clients[i]->getPlayer()->getName() + "|" + clients[i]->getSocket()->peerAddress().toString();
-          client->getSocket()->write(msg2.toUtf8());
-        }
-      }
-    }*/
   }
 
   void acceptConnection() {

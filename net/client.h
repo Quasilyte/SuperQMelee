@@ -53,9 +53,9 @@ private slots:
   }
 
   void recvAuthConfirm() {
-    Message in{socket};
+    MessageHeader in{socket};
 
-    if (in.getType() == in.AUTH_CONFIRM && !in.isBroken(socket)) {
+    if (in.getType() == AuthConfirm::TYPE) {
       disconnect(socket, SIGNAL(readyRead()), this, SLOT(recvAuthConfirm()));
       connect(socket, SIGNAL(readyRead()), this, SLOT(recvPlayerList()));
 
@@ -173,7 +173,7 @@ public:
     }
   }
 
-  void auth(Message::Id id) noexcept {
+  void auth(MessageHeader::Id id) noexcept {
     assert(!hasAuth());
     this->id = id;
   }
@@ -187,7 +187,7 @@ private:
   static const unsigned JOIN_TIMEOUT = 1000;
   static const MessageHeader::Id DEFAULT_ID = -1;
 
-  Message::Id id = DEFAULT_ID;
+  MessageHeader::Id id = DEFAULT_ID;
   Socket *socket;
   Player *player;
 };
