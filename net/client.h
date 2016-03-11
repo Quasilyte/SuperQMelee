@@ -56,9 +56,7 @@ private slots:
     MessageHeader in{socket};
 
     if (in.getType() == AuthConfirm::TYPE) {
-      disconnect(socket, SIGNAL(readyRead()), this, SLOT(recvAuthConfirm()));
-      connect(socket, SIGNAL(readyRead()), this, SLOT(recvPlayerList()));
-
+      rebind(SLOT(recvAuthConfirm()), SLOT(recvPlayerList()));
       socket->write(PlayerListRequest{id});
     }
   }
@@ -73,8 +71,7 @@ private slots:
         players.push_back(Player::Codec::fromSocket(socket));
       }
 
-      disconnect(socket, SIGNAL(readyRead()), this, SLOT(recvPlayerList()));
-      connect(socket, SIGNAL(readyRead()), this, SLOT(recvAny()));
+      rebind(SLOT(recvPlayerList()), SLOT(recvAny()));
 
       emit joined(players);
     } else {
@@ -86,8 +83,7 @@ private slots:
     MessageHeader in{socket};
 
     if (in.getType() == AuthDataRequest::TYPE) {
-      disconnect(socket, SIGNAL(readyRead()), this, SLOT(sendAuth()));
-      connect(socket, SIGNAL(readyRead()), this, SLOT(recvAuthConfirm()));
+      rebind(SLOT(sendAuth()), SLOT(recvAuthConfirm()));
 
       player->setTeam(readByte(socket));
       socket->write(AuthData{in.getId(), player->getName()});
@@ -109,12 +105,6 @@ public:
 
   ~Client() {
     delete player;
-  }
-
-  void enable() {
-    connect(socket, SIGNAL(connected()), this, SLOT(connected()));
-    connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-    // connect(socket, SIGNAL(readyRead()), this, SLOT(readBytes()));
   }
 
   bool hasAuth() const {
@@ -146,15 +136,7 @@ public:
 
   void sendPrivateText(QString text) {
     assert(hasAuth());
-
     socket->write(PrivateText{id, player->getTeam(), text});
-
-    /*
-    Message out{Message::PRIVATE_TEXT, id, text.length() + 1};
-    out.embed(player->getTeam());
-    out.append(text);
-    socket->write(out.getData(), out.getTotalSize());
-    */
   }
 
   void joinServer(Route route) {
@@ -190,4 +172,9 @@ private:
   MessageHeader::Id id = DEFAULT_ID;
   Socket *socket;
   Player *player;
+
+  void rebind(const char *toUnbind, const char *toBind) {
+    disconnect(socket, SIGNAL(readyRead()), this, toUnbind);
+    connect(socket, SIGNAL(readyRead()), this, toBind);
+  }
 };

@@ -43,7 +43,6 @@ void LobbyFrame::toggleUi() {
 void LobbyFrame::initClient(const QString& name, const QString& ip) {
   client = new Client{new Socket{}};
   client->getPlayer()->setName(name);
-  client->enable();
 
   client->joinServer(Route{ip, 8080});
   connect(client, SIGNAL(joined(QVector<Player>)), this, SLOT(onJoined(QVector<Player>)));
