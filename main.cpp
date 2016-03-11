@@ -11,7 +11,7 @@
 #include <memory>
 #include <QApplication>
 
-#define LOBBY_MODE 0
+#define LOBBY_MODE 1
 
 // http://www.star-control.com/hosted/scsaga/shipspic.htm
 // BUGS:
@@ -19,14 +19,14 @@
 int main(int argc, char *argv[]) {
   QApplication app{argc, argv};
   app.setStyle("gtk");
-  MediaPlayer::init();
+  //MediaPlayer::init();
 
 # if LOBBY_MODE == 1
   LobbyFrame frame;
 # else
   GameFrame frame;
-  MediaPlayer music{MediaFile{"audio/battle.mod"}};
-  music.play();
+  //MediaPlayer music{MediaFile{"audio/battle.mod"}};
+  //music.play();
 # endif
   frame.show();
 

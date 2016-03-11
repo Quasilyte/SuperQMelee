@@ -12,6 +12,8 @@
 
 class GraphicsItem: public QGraphicsItem {
 public:
+  using QGraphicsItem::moveBy;
+
   GraphicsItem(QString imagePath):
   sprite{QPixmap{imagePath}} {
     initBoundingFromSprite();
@@ -21,6 +23,10 @@ public:
   sprite{QPixmap{imagePath}} {
     setRotation(degrees);
     initBoundingFromSprite();
+  }
+
+  void moveBy(const QPointF& point) {
+    QGraphicsItem::moveBy(point.x(), point.y());
   }
 
   void moveForward(qreal distance) {
