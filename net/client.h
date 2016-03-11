@@ -38,13 +38,13 @@ private slots:
     msg::Header in{socket};
 
     switch (in.getType()) {
-    case NewPlayer::TYPE:
+    case msg::Type::NEW_PLAYER:
       emit gotNewPlayer(Player::Codec::fromSocket(socket));
       break;
-    case PublicText::TYPE:
+    case msg::Type::PUBLIC_TEXT:
       emit gotPublicText(QString{socket->readAll()});
       break;
-    case PrivateText::TYPE:
+    case msg::Type::PRIVATE_TEXT:
       emit gotPrivateText(QString{socket->readAll()});
       break;
     default:
@@ -55,9 +55,9 @@ private slots:
   void recvAuthConfirm() {
     msg::Header in{socket};
 
-    if (in.getType() == AuthConfirm::TYPE) {
+    if (in.getType() == msg::Type::AUTH_CONFIRM) {
       rebind(SLOT(recvAuthConfirm()), SLOT(recvPlayerList()));
-      socket->write(PlayerListRequest{id});
+      socket->write(msg::PlayerListRequest{id});
     }
   }
 
@@ -65,7 +65,7 @@ private slots:
     msg::Header in{socket};
     QVector<Player> players;
 
-    if (in.getType() == PlayerList::TYPE) {
+    if (in.getType() == msg::Type::PLAYER_LIST) {
       while (socket->bytesAvailable()) {
         qDebug() << socket->bytesAvailable() << "bytes left";
         players.push_back(Player::Codec::fromSocket(socket));
@@ -82,11 +82,11 @@ private slots:
   void sendAuth() {
     msg::Header in{socket};
 
-    if (in.getType() == AuthDataRequest::TYPE) {
+    if (in.getType() == msg::Type::AUTH_DATA_REQUEST) {
       rebind(SLOT(sendAuth()), SLOT(recvAuthConfirm()));
 
       player->setTeam(readByte(socket));
-      socket->write(AuthData{in.getId(), player->getName()});
+      socket->write(msg::AuthData{in.getId(), player->getName()});
 
       auth(in.getId());
     }
@@ -131,12 +131,12 @@ public:
 
   void sendPublicText(QString text) {
     assert(hasAuth());
-    socket->write(PublicText{id, text});
+    socket->write(msg::PublicText{id, text});
   }
 
   void sendPrivateText(QString text) {
     assert(hasAuth());
-    socket->write(PrivateText{id, player->getTeam(), text});
+    socket->write(msg::PrivateText{id, player->getTeam(), text});
   }
 
   void joinServer(Route route) {

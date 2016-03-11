@@ -4,11 +4,13 @@
 
 #include <cassert>
 
-class Message;
+namespace msg {
+  class Base;
+};
 
 class Socket: public QTcpSocket {
 public:
   using QTcpSocket::write;
 
-  qint64 write(const Message& msg);
+  qint64 write(const msg::Base& msg);
 };

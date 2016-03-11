@@ -2,14 +2,14 @@
 
 #include "net/client.h"
 
-PlayerList::PlayerList(msg::Id id, ClientsIter clients):
-Message{TYPE, id, msg::Header::MAX_SIZE} {
+msg::PlayerList::PlayerList(Id id, ClientsIter clients):
+Base{Type::PLAYER_LIST, id, MAX_SIZE} {
   while (auto client = clients.next()) {
     Player::Codec::intoBytes(client->getPlayer(), &bytes);
   }
 }
 
-NewPlayer::NewPlayer(msg::Id id, Player *player):
-Message{TYPE, id, Player::Codec::sizeOf(player)} {
+msg::NewPlayer::NewPlayer(Id id, Player *player):
+Base{Type::NEW_PLAYER, id, Player::Codec::sizeOf(player)} {
   Player::Codec::intoBytes(player, &bytes);
 }

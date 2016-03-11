@@ -15,7 +15,7 @@ class Server: public QObject {
   Q_OBJECT
 
   void handlePlayerListRequest(Socket *socket, msg::Id id) {
-    socket->write(PlayerList{id, ClientsIter{clients, connections}});
+    socket->write(msg::PlayerList{id, ClientsIter{clients, connections}});
   }
 
   void handlePublicText(QTcpSocket *socket, msg::Id id) {
@@ -25,7 +25,7 @@ class Server: public QObject {
     ClientsIter iter{clients, connections};
     while (auto client = iter.next()) {
       client->getSocket()->write(
-        PublicText{client->getId(), sender->getName(), messageBody}
+        msg::PublicText{client->getId(), sender->getName(), messageBody}
       );
     }
   }
@@ -39,7 +39,7 @@ class Server: public QObject {
     while (auto client = iter.next()) {
       if (client->getPlayer()->getTeam() == team) {
         client->getSocket()->write(
-          PrivateText{client->getId(), sender->getName(), messageBody}
+          msg::PrivateText{client->getId(), sender->getName(), messageBody}
         );
       }
     }
@@ -60,13 +60,13 @@ class Server: public QObject {
       auto newPlayer = newClient->getPlayer();
       newPlayer->setName(QString{nameBytes});
 
-      socket->write(AuthConfirm{id});
+      socket->write(msg::AuthConfirm{id});
 
       qDebug() << "given auth to" << newPlayer->getName();
 
       ClientsIter iter{clients, connections};
       while (auto client = iter.next()) {
-        client->getSocket()->write(NewPlayer{client->getId(), newPlayer});
+        client->getSocket()->write(msg::NewPlayer{client->getId(), newPlayer});
       }
 
       newClient->auth(id);
@@ -94,13 +94,13 @@ private slots:
 
     if (in.getSize() == socket->bytesAvailable()) {
       switch (in.getType()) {
-      case AuthData::TYPE:
+      case msg::Type::AUTH_DATA:
         handleAuth(socket, id); break;
-      case PlayerListRequest::TYPE:
+      case msg::Type::PLAYER_LIST_REQUEST:
         handlePlayerListRequest(socket, id); break;
-      case PublicText::TYPE:
+      case msg::Type::PUBLIC_TEXT:
         handlePublicText(socket, id); break;
-      case PrivateText::TYPE:
+      case msg::Type::PRIVATE_TEXT:
         handlePrivateText(socket, id); break;
       /*case in.CHANGE_TEAM:
         handleChangeTeam(socket, in); break;*/
@@ -128,7 +128,7 @@ private slots:
 
       auto id = connections;
       auto team = connections;
-      socket->write(AuthDataRequest{id, team});
+      socket->write(msg::AuthDataRequest{id, team});
       connections += 1;
     } else {
       qDebug() << "rejected connection due to limits";

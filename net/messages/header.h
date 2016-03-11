@@ -2,7 +2,6 @@
 
 #include "net/config.h"
 #include "net/clients_iter.h"
-#include "message_type.h"
 #include "utils/constexpr.h"
 #include "net/socket.h"
 
@@ -11,14 +10,46 @@
 #include <limits>
 #include <QString>
 
+class Player;
+
 namespace msg {
-  typedef quint8 Size;
+  typedef quint16 Size;
   typedef qint8 Id;
 
   class Header;
-}
+  class Base;
+  class PublicText;
+  class PrivateText;
+  class AuthDataRequest;
+  class AuthData;
+  class AuthConfirm;
+  class PlayerListRequest;
+  class PlayerList;
+  class NewPlayer;
 
-class Player;
+  enum class Type: qint8 {
+    NIL_TYPE,
+    AUTH_DATA_REQUEST,
+    AUTH_DATA,
+    AUTH_CONFIRM,
+    PLAYER_LIST_REQUEST,
+    PLAYER_LIST,
+    NEW_PLAYER,
+    PRIVATE_TEXT,
+    PUBLIC_TEXT,
+    UPPER_BOUND,
+  };
+
+  const int META_DATA_SIZE =
+      sizeof(Size) + sizeof(Type) + sizeof(Id);
+  const Size MAX_SIZE =
+      std::numeric_limits<quint16>::max() - META_DATA_SIZE;
+
+  static_assert(
+    META_DATA_SIZE == 4 && MAX_SIZE > 32767, // ((2 >> 14) - 1)
+    "platform data type size expectations"
+  );
+}
 
 class msg::Header {
 public:
@@ -27,33 +58,23 @@ public:
   class UnknownType: public Exception{};
   class InvalidId: public Exception{};
 
-  static const qint8 META_DATA_SIZE =
-      sizeof(Size) + sizeof(MessageType) + sizeof(Id);
-  static const quint8 MAX_SIZE =
-      std::numeric_limits<quint8>::max() - META_DATA_SIZE;
-
-  Header(MessageType type, Id id, int size):
-  size{static_cast<Size>(size)}, type{type}, id{id} {}
+  Header(Type type, Id id, int size):
+  size{static_cast<Size>(size)}, type{type}, id{id} {
+    validate();
+  }
 
   Header(Socket *socket) {
     socket->read(reinterpret_cast<char*>(this), META_DATA_SIZE);
+    validate();
   }
 
-  Size getSize() const noexcept {
-    return size;
-  }
-
-  Id getId() const noexcept {
-    return id;
-  }
-
-  MessageType getType() const noexcept {
-    return type;
-  }
+  Size getSize() const noexcept { return size; }
+  Id getId() const noexcept { return id; }
+  Type getType() const noexcept { return type; }
 
 private:
   Size size;
-  MessageType type = MessageType::NIL_TYPE;
+  Type type = Type::NIL_TYPE;
   Id id;
 
   void validate() {
@@ -61,111 +82,78 @@ private:
       throw SizeOverflow{};
     }
 
-    if (!(type > MessageType::NIL_TYPE && type < MessageType::UPPER_BOUND)) {
+    if (!(type > Type::NIL_TYPE && type < Type::UPPER_BOUND)) {
       throw UnknownType{};
     }
   }
-
-  static_assert(
-    META_DATA_SIZE == sizeof(char) * 3 && MAX_SIZE > 128,
-    "platform data type size expectations"
-  );
 };
 
-class Message {
+class msg::Base {
 public:
-  Message(MessageType type, msg::Id id, int size = 0):
+  Base(Type type, Id id, int size = 0):
   header{type, id, size} {
-    bytes.reserve(size + msg::Header::META_DATA_SIZE);
-    bytes.append(reinterpret_cast<char*>(&header), msg::Header::META_DATA_SIZE);
+    bytes.reserve(size + msg::META_DATA_SIZE);
+    bytes.append(reinterpret_cast<char*>(&header), msg::META_DATA_SIZE);
   }
 
   qint64 getDataSize() const noexcept {
     return bytes.length();
   }
 
-  const char* getData() const noexcept {
-    return bytes.data();
-  }
+  const char* getData() const noexcept { return bytes.data(); }
 
 protected:
-  msg::Header header;
+  Header header;
   QByteArray bytes;
 };
 
-struct PublicText: public Message {
-  PublicText(msg::Id id, QString author, QString text):
-  Message{TYPE, id, author.length() + Constexpr::strlen(": ") + text.length()} {
-    bytes.append(author);
-    bytes.append(": ");
-    bytes.append(text);
+struct msg::PublicText: public Base {
+  PublicText(Id id, QString author, QString text):
+  Base{Type::PUBLIC_TEXT, id, author.length() + Constexpr::strlen(": ") + text.length()} {
+    bytes.append(author).append(": ").append(text);
   }
 
-  PublicText(msg::Id id, QString text):
-  Message{TYPE, id, text.length()} {
+  PublicText(Id id, QString text): Base{Type::PUBLIC_TEXT, id, text.length()} {
     bytes.append(text);
   }
-
-  static const auto TYPE = MessageType::PUBLIC_TEXT;
 };
 
-struct AuthDataRequest: public Message {
-  AuthDataRequest(msg::Id id, qint8 team):
-  Message{TYPE, id, 1} {
+struct msg::AuthDataRequest: public Base {
+  AuthDataRequest(Id id, qint8 team): Base{Type::AUTH_DATA_REQUEST, id, 1} {
     bytes.append(team);
   }
-
-  static const auto TYPE = MessageType::AUTH_DATA_REQUEST;
 };
 
-struct AuthConfirm: public Message {
-  AuthConfirm(msg::Id id):
-  Message{TYPE, id} {}
-
-  static const auto TYPE = MessageType::AUTH_CONFIRM;
+struct msg::AuthConfirm: public Base {
+  AuthConfirm(Id id): Base{Type::AUTH_CONFIRM, id} {}
 };
 
-struct PlayerList: public Message {
-  PlayerList(msg::Id id, ClientsIter clients);
-
-  static const auto TYPE = MessageType::PLAYER_LIST;
+struct msg::PlayerList: public Base {
+  PlayerList(Id id, ClientsIter clients);
 };
 
-struct PrivateText: public Message {
-  PrivateText(msg::Id id, QString author, QString text):
-  Message{TYPE, id, author.length() + Constexpr::strlen(": ") + text.length()} {
-    bytes.append(author);
-    bytes.append(": ");
-    bytes.append(text);
+struct msg::PrivateText: public Base {
+  PrivateText(Id id, QString author, QString text):
+  Base{Type::PRIVATE_TEXT, id, author.length() + Constexpr::strlen(": ") + text.length()} {
+    bytes.append(author).append(": ").append(text);
   }
 
-  PrivateText(msg::Id id, qint8 team, QString text):
-  Message{TYPE, id, 1 + text.length()} {
-    bytes.append(team);
-    bytes.append(text);
+  PrivateText(Id id, qint8 team, QString text):
+  Base{Type::PRIVATE_TEXT, id, 1 + text.length()} {
+    bytes.append(team).append(text);
   }
-
-  static const auto TYPE = MessageType::PRIVATE_TEXT;
 };
 
-struct AuthData: public Message {
-  AuthData(msg::Id id, QString name):
-  Message{TYPE, id, name.length()} {
+struct msg::AuthData: public Base {
+  AuthData(Id id, QString name): Base{Type::AUTH_DATA, id, name.length()} {
     bytes.append(name);
   }
-
-  static const auto TYPE = MessageType::AUTH_DATA;
 };
 
-struct PlayerListRequest: public Message {
-  PlayerListRequest(msg::Id id):
-  Message{TYPE, id} {}
-
-  static const auto TYPE = MessageType::PLAYER_LIST_REQUEST;
+struct msg::PlayerListRequest: public Base {
+  PlayerListRequest(Id id): Base{Type::PLAYER_LIST_REQUEST, id} {}
 };
 
-struct NewPlayer: public Message {
-  NewPlayer(msg::Id id, Player *player);
-
-  static const auto TYPE = MessageType::NEW_PLAYER;
+struct msg::NewPlayer: public Base {
+  NewPlayer(Id id, Player *player);
 };

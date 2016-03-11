@@ -57,7 +57,6 @@ HEADERS += \
     net/message.h \
     utils/constexpr.h \
     net/messages/header.h \
-    net/messages/message_type.h \
     net/socket.h \
     net/clients_iter.h \
     audio.h \
