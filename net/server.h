@@ -14,11 +14,11 @@
 class Server: public QObject {
   Q_OBJECT
 
-  void handlePlayerListRequest(Socket *socket, MessageHeader::Id id) {
+  void handlePlayerListRequest(Socket *socket, msg::Id id) {
     socket->write(PlayerList{id, ClientsIter{clients, connections}});
   }
 
-  void handlePublicText(QTcpSocket *socket, MessageHeader::Id id) {
+  void handlePublicText(QTcpSocket *socket, msg::Id id) {
     auto sender = clients[id]->getPlayer();
     auto messageBody = socket->readAll();
 
@@ -30,7 +30,7 @@ class Server: public QObject {
     }
   }
 
-  void handlePrivateText(Socket *socket, MessageHeader::Id id) {
+  void handlePrivateText(Socket *socket, msg::Id id) {
     auto sender = clients[id]->getPlayer();
     auto team = readByte(socket);
     auto messageBody = socket->readAll();
@@ -52,7 +52,7 @@ class Server: public QObject {
   }
   */
 
-  void handleAuth(Socket *socket, MessageHeader::Id id) {
+  void handleAuth(Socket *socket, msg::Id id) {
     auto newClient = clients[id];
     auto nameBytes = socket->readAll();
 
@@ -79,7 +79,7 @@ private slots:
   void gotBytes() {
     auto socket = static_cast<Socket*>(sender());
 
-    MessageHeader in{socket};
+    msg::Header in{socket};
     auto id = in.getId();
 
     if (id > connections) {

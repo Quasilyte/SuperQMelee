@@ -35,7 +35,7 @@ private slots:
   }
 
   void recvAny() {
-    MessageHeader in{socket};
+    msg::Header in{socket};
 
     switch (in.getType()) {
     case NewPlayer::TYPE:
@@ -53,7 +53,7 @@ private slots:
   }
 
   void recvAuthConfirm() {
-    MessageHeader in{socket};
+    msg::Header in{socket};
 
     if (in.getType() == AuthConfirm::TYPE) {
       rebind(SLOT(recvAuthConfirm()), SLOT(recvPlayerList()));
@@ -62,7 +62,7 @@ private slots:
   }
 
   void recvPlayerList() {
-    MessageHeader in{socket};
+    msg::Header in{socket};
     QVector<Player> players;
 
     if (in.getType() == PlayerList::TYPE) {
@@ -80,7 +80,7 @@ private slots:
   }
 
   void sendAuth() {
-    MessageHeader in{socket};
+    msg::Header in{socket};
 
     if (in.getType() == AuthDataRequest::TYPE) {
       rebind(SLOT(sendAuth()), SLOT(recvAuthConfirm()));
@@ -155,21 +155,21 @@ public:
     }
   }
 
-  void auth(MessageHeader::Id id) noexcept {
+  void auth(msg::Id id) noexcept {
     assert(!hasAuth());
     this->id = id;
   }
 
-  MessageHeader::Id getId() const noexcept {
+  msg::Id getId() const noexcept {
     assert(hasAuth());
     return id;
   }
 
 private:
   static const unsigned JOIN_TIMEOUT = 1000;
-  static const MessageHeader::Id DEFAULT_ID = -1;
+  static const msg::Id DEFAULT_ID = -1;
 
-  MessageHeader::Id id = DEFAULT_ID;
+  msg::Id id = DEFAULT_ID;
   Socket *socket;
   Player *player;
 

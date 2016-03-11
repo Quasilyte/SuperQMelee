@@ -137,15 +137,5 @@ private:
     }
   }
 
-  void initFromValues() {
-    validate();
-    bytea.reserve(size + META_DATA_SIZE);
-    writeMetaData();
-  }
-
-  static_assert(
-    META_DATA_SIZE == sizeof(char) * 3 && MAX_SIZE > 128,
-    "platform data type size expectations"
-  );
 };
 */

@@ -46,7 +46,6 @@ void LobbyFrame::initClient(const QString& name, const QString& ip) {
 
   client->joinServer(Route{ip, 8080});
   connect(client, SIGNAL(joined(QVector<Player>)), this, SLOT(onJoined(QVector<Player>)));
-  // connect(client, SIGNAL(authentificated()), this, SLOT(setupConnections()));
 }
 
 void LobbyFrame::onJoined(QVector<Player> players) {
