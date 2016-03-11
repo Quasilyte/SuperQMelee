@@ -54,7 +54,6 @@ HEADERS += \
     net/conn/connection.h \
     net/utils.h \
     net/config.h \
-    net/message.h \
     utils/constexpr.h \
     net/messages/header.h \
     net/socket.h \

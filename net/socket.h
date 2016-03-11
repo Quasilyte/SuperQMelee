@@ -6,7 +6,8 @@
 
 namespace msg {
   class Base;
-};
+  enum class Type;
+}
 
 class Socket: public QTcpSocket {
 public:

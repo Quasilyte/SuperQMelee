@@ -60,11 +60,11 @@ public:
   }
 
   static void intoBytes(Player *player, QByteArray *bytes) {
-    bytes->append(static_cast<char>(player->getName().length()));
-    bytes->append(player->getName());
-    bytes->append(static_cast<char>(player->getIp().length()));
-    bytes->append(player->getIp());
-    bytes->append(player->getTeam());
+    bytes->append(static_cast<char>(player->getName().length()))
+        ->append(player->getName())
+        ->append(static_cast<char>(player->getIp().length()))
+        ->append(player->getIp())
+        ->append(player->getTeam());
   }
 
   static Player fromSocket(Socket *socket) {

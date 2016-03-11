@@ -26,48 +26,39 @@ signals:
   void gotNewPlayer(Player);
 
 private slots:
-  void connected() {
-    // Messenger::info("connected");
-  }
-
-  void disconnected() {
-    // Messenger::info("disconnected");
-  }
-
   void recvAny() {
-    msg::Header in{socket};
-
-    switch (in.getType()) {
-    case msg::Type::NEW_PLAYER:
-      emit gotNewPlayer(Player::Codec::fromSocket(socket));
-      break;
-    case msg::Type::PUBLIC_TEXT:
-      emit gotPublicText(QString{socket->readAll()});
-      break;
-    case msg::Type::PRIVATE_TEXT:
-      emit gotPrivateText(QString{socket->readAll()});
-      break;
-    default:
-      qDebug() << "Client: unknown message type";
+    if (messageCheckout()) {
+      switch (in.getType()) {
+      case msg::Type::NEW_PLAYER:
+        emit gotNewPlayer(Player::Codec::fromSocket(socket));
+        break;
+      case msg::Type::PUBLIC_TEXT:
+        emit gotPublicText(QString{socket->readAll()});
+        break;
+      case msg::Type::PRIVATE_TEXT:
+        emit gotPrivateText(QString{socket->readAll()});
+        break;
+      default:
+        qDebug() << "Client: unknown message type";
+      }
+    } else {
+      qDebug() << "Client: malformed packet";
     }
   }
 
   void recvAuthConfirm() {
-    msg::Header in{socket};
-
-    if (in.getType() == msg::Type::AUTH_CONFIRM) {
+    if (messageCheckout(msg::Type::AUTH_CONFIRM)) {
       rebind(SLOT(recvAuthConfirm()), SLOT(recvPlayerList()));
+
       socket->write(msg::PlayerListRequest{id});
     }
   }
 
   void recvPlayerList() {
-    msg::Header in{socket};
-    QVector<Player> players;
+    if (messageCheckout(msg::Type::PLAYER_LIST)) {
+      QVector<Player> players;
 
-    if (in.getType() == msg::Type::PLAYER_LIST) {
       while (socket->bytesAvailable()) {
-        qDebug() << socket->bytesAvailable() << "bytes left";
         players.push_back(Player::Codec::fromSocket(socket));
       }
 
@@ -80,9 +71,7 @@ private slots:
   }
 
   void sendAuth() {
-    msg::Header in{socket};
-
-    if (in.getType() == msg::Type::AUTH_DATA_REQUEST) {
+    if (messageCheckout(msg::Type::AUTH_DATA_REQUEST)) {
       rebind(SLOT(sendAuth()), SLOT(recvAuthConfirm()));
 
       player->setTeam(readByte(socket));
@@ -109,14 +98,6 @@ public:
 
   bool hasAuth() const {
     return id != DEFAULT_ID;
-  }
-
-  Socket* getSocket() const noexcept {
-    return socket;
-  }
-
-  Player* getPlayer() const noexcept {
-    return player;
   }
 
   /*
@@ -164,6 +145,8 @@ public:
     assert(hasAuth());
     return id;
   }
+  Socket* getSocket() const noexcept { return socket; }
+  Player* getPlayer() const noexcept { return player; }
 
 private:
   static const unsigned JOIN_TIMEOUT = 1000;
@@ -176,5 +159,20 @@ private:
   void rebind(const char *toUnbind, const char *toBind) {
     disconnect(socket, SIGNAL(readyRead()), this, toUnbind);
     connect(socket, SIGNAL(readyRead()), this, toBind);
+  }
+
+  bool messageCheckout() {
+    msg::Header meta{socket};
+
+    return meta.getSize() == socket->bytesAvailable()
+        && meta.getId() == id;
+  }
+
+  bool messageCheckout(msg::Type expectedType) {
+    msg::Header meta{socket};
+
+    return meta.getSize() == socket->bytesAvailable()
+        && meta.getId() == id
+        && meta.getType() == expectedType;
   }
 };
