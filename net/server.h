@@ -45,10 +45,12 @@ class Server: public QObject {
     }
   }
 
+  /*
   void handleChangeTeam(Socket *socket, const Message& in) {
     auto sender = clients[in.getId()];
     sender->setTeam(readByte(socket));
   }
+  */
 
   void handleAuth(Socket *socket, const Message& in) {
     auto newClient = clients[in.getId()];
@@ -99,8 +101,8 @@ private slots:
         handlePublicText(socket, in); break;
       case in.PRIVATE_TEXT:
         handlePrivateText(socket, in); break;
-      case in.CHANGE_TEAM:
-        handleChangeTeam(socket, in); break;
+      /*case in.CHANGE_TEAM:
+        handleChangeTeam(socket, in); break;*/
       default:
         qDebug() << "Server: unknown message type" << in.getType();
       }

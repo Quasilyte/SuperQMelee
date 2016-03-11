@@ -19,7 +19,8 @@ SOURCES += \
     net/server.cpp \
     net/clients_iter.cpp \
     net/messages/players_list.cpp \
-    audio.cpp
+    audio.cpp \
+    net/socket.cpp
 
 HEADERS += \
     actors/vessel.h \

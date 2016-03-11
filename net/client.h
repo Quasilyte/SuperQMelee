@@ -35,16 +35,16 @@ private slots:
   }
 
   void recvAny() {
-    Message in{socket};
+    MessageHeader in{socket};
 
     switch (in.getType()) {
-    case Message::NEW_PLAYER:
+    case NewPlayer::TYPE:
       emit gotNewPlayer(Player::Codec::fromSocket(socket));
       break;
-    case Message::PUBLIC_TEXT:
+    case PublicText::TYPE:
       emit gotPublicText(QString{socket->readAll()});
       break;
-    case Message::PRIVATE_TEXT:
+    case PrivateText::TYPE:
       emit gotPrivateText(QString{socket->readAll()});
       break;
     default:
@@ -64,10 +64,10 @@ private slots:
   }
 
   void recvPlayerList() {
-    Message in{socket};
+    MessageHeader in{socket};
     QVector<Player> players;
 
-    if (in.is(Message::PLAYER_LIST)) {
+    if (in.getType() == PlayerList::TYPE) {
       while (socket->bytesAvailable()) {
         qDebug() << socket->bytesAvailable() << "bytes left";
         players.push_back(Player::Codec::fromSocket(socket));
@@ -83,14 +83,13 @@ private slots:
   }
 
   void sendAuth() {
-    Message in{socket};
+    MessageHeader in{socket};
 
-    if (in.getType() == in.AUTH_DATA_REQUEST && !in.isBroken(socket)) {
+    if (in.getType() == AuthDataRequest::TYPE) {
       disconnect(socket, SIGNAL(readyRead()), this, SLOT(sendAuth()));
       connect(socket, SIGNAL(readyRead()), this, SLOT(recvAuthConfirm()));
 
       player->setTeam(readByte(socket));
-
       socket->write(AuthData{in.getId(), player->getName()});
 
       auth(in.getId());
@@ -130,6 +129,7 @@ public:
     return player;
   }
 
+  /*
   void setTeam(int team) {
     assert(hasAuth());
 
@@ -137,6 +137,7 @@ public:
     out.embed(static_cast<Player::Team>(team));
     socket->write(out.getData(), out.getTotalSize());
   }
+  */
 
   void sendPublicText(QString text) {
     assert(hasAuth());
@@ -177,17 +178,16 @@ public:
     this->id = id;
   }
 
-  Message::Id getId() const noexcept {
+  MessageHeader::Id getId() const noexcept {
     assert(hasAuth());
     return id;
   }
 
 private:
   static const unsigned JOIN_TIMEOUT = 1000;
-  static const Message::Id DEFAULT_ID = -1;
+  static const MessageHeader::Id DEFAULT_ID = -1;
 
   Message::Id id = DEFAULT_ID;
-  // QTcpSocket *socket;
   Socket *socket;
   Player *player;
 };

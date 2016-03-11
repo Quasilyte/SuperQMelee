@@ -4,6 +4,7 @@
 #include "net/clients_iter.h"
 #include "message_type.h"
 #include "utils/constexpr.h"
+#include "net/socket.h"
 
 #include <QtGlobal>
 #include <QByteArray>
@@ -29,6 +30,10 @@ public:
 
   MessageHeader(MessageType type, Id id, int size):
   size{static_cast<Size>(size)}, type{type}, id{id} {}
+
+  MessageHeader(Socket *socket) {
+    socket->read(reinterpret_cast<char*>(this), META_DATA_SIZE);
+  }
 
   Size getSize() const noexcept {
     return size;
