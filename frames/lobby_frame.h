@@ -6,11 +6,10 @@
 #include <QMainWindow>
 
 namespace Ui {
-class LobbyFrame;
+  class LobbyFrame;
 }
 
-class LobbyFrame : public QMainWindow
-{
+class LobbyFrame : public QMainWindow {
   Q_OBJECT
 
 public:
@@ -19,24 +18,16 @@ public:
 
 private slots:
   void on_makeHostButton_clicked();
-
   void on_disconnectButton_clicked();
-
   void on_joinHostButton_clicked();
+  void on_sendPublicMessageButton_clicked();
+  void on_sendPrivateMessageButton_clicked();
+  void on_comboBox_currentIndexChanged(int index);
 
-  // void updateChat(QByteArray newMessage);
-  void introduce(QString id);
-  void setupConnections();
   void onJoined(QVector<Player>);
   void onNewPlayer(Player);
   void onNewPublicText(QString);
   void onNewPrivateText(QString);
-
-  void on_sendPublicMessageButton_clicked();
-
-  void on_sendPrivateMessageButton_clicked();
-
-  void on_comboBox_currentIndexChanged(int index);
 
 private:
   Ui::LobbyFrame *ui;
@@ -44,7 +35,6 @@ private:
   Client *client = nullptr;
   unsigned playerCount = 0;
 
-  // bool addPlayer(const QString& name, const QString& ip);
   void addPlayer(const Player& player);
   int findEmptyPlayerSlot() const;
   void initClient(const QString& name, const QString& ip);

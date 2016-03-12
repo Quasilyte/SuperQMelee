@@ -78,26 +78,6 @@ void LobbyFrame::onNewPlayer(Player player) {
   addPlayer(player);
 }
 
-void LobbyFrame::setupConnections() {
-  qDebug() << "got auth!! yeah";
-}
-
-void LobbyFrame::introduce(QString response) {
-  qDebug() << response;
-  /*
-  auto idAndIp = response.split(":");
-  QString id = idAndIp[0];
-  QString ip = idAndIp[1];
-  auto auth = id + ":" + client->getPlayer()->getName();
-
-  disconnect(client, SIGNAL(broadcast(QString)), this, SLOT(introduce(QString)));
-  connect(client, SIGNAL(broadcast(QString)), this, SLOT(updateChat(QString)));
-  client->sendMessage(auth);
-
-  client->auth(id.toInt(), client->getPlayer()->getName());
-  */
-}
-
 void LobbyFrame::on_joinHostButton_clicked() {
   auto name = ui->nicknameInput->text();
   auto ip = ui->ipInput->text();
@@ -109,23 +89,6 @@ void LobbyFrame::on_joinHostButton_clicked() {
     initClient(name, ip);
   }
 }
-
-/*
-void LobbyFrame::updateChat(QByteArray batch) {
-  qDebug() << "text msg:" << QString{batch};
-
-  auto messages = batch.split(';');
-
-  foreach (auto message, messages) {
-    auto parts = message.split("|");
-    qDebug() << message;
-    if (parts[0] == "0") { // Новый участник
-      addPlayer(parts[1], parts[2]);
-    } else if (parts[0] == "1") { // Новое сообщение в чате
-      ui->messages->addItem(parts[1]);
-    }
-  }
-}*/
 
 void LobbyFrame::on_disconnectButton_clicked() {
   if (Messenger::confirm("Are you sure?")) {
@@ -158,19 +121,6 @@ void LobbyFrame::addPlayer(const Player &player) {
   wget->item(playerCount, 2)->setText(QString::number(player.getTeam()));
   playerCount += 1;
 }
-
-/*
-bool LobbyFrame::addPlayer(const QString& name, const QString& ip) {
-  int emptySlot = findEmptyPlayerSlot();
-  if (emptySlot == -1) {
-    return false;
-  }
-
-  ui->players->item(emptySlot, 0)->setText(name);
-  ui->players->item(emptySlot, 1)->setText(ip);
-
-  return true;
-}*/
 
 /*
 int LobbyFrame::findEmptyPlayerSlot() const {

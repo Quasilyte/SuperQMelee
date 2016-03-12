@@ -9,7 +9,7 @@
 #include <QTimer>
 
 namespace Ui {
-class GameFrame;
+  class GameFrame;
 }
 
 class GameFrame : public QMainWindow {

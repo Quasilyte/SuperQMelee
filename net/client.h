@@ -20,11 +20,16 @@ class Client: public QObject {
 
 signals:
   void joined(QVector<Player>);
+  void leaved();
   void gotPrivateText(QString);
   void gotPublicText(QString);
   void gotNewPlayer(Player);
 
 private slots:
+  void onSocketDisconnect() {
+    emit leaved();
+  }
+
   void recvAny() {
     msg::Header meta{socket};
 
@@ -89,11 +94,13 @@ public:
   Client(Socket *socket):
   socket{socket}, player{new Player{}} {
     assert(socket != nullptr);
+    connect(socket, SIGNAL(disconnected()), this, SLOT(onSocketDisconnect()));
   }
 
   Client(Socket *socket, Player *player):
   socket{socket}, player{player} {
     assert(socket != nullptr);
+    connect(socket, SIGNAL(disconnected()), this, SLOT(onSocketDisconnect()));
   }
 
   ~Client() {
@@ -131,7 +138,7 @@ public:
        Messenger::warn("Connection timeout");
      }
 
-     connect(this->socket, SIGNAL(readyRead()), this, SLOT(sendAuth()));
+     connect(socket, SIGNAL(readyRead()), this, SLOT(sendAuth()));
   }
 
   void leaveServer() {

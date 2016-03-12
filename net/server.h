@@ -10,7 +10,6 @@
 
 #include "utils.h"
 
-// #FIXME: disconnection not handled
 class Server: public QObject {
   Q_OBJECT
 
@@ -70,6 +69,7 @@ class Server: public QObject {
       }
 
       newClient->auth(id);
+      connect(newClient, SIGNAL(leaved()), this, SLOT(clientDisconnected()));
     } else {
       qDebug() << "double auth from" << QString{nameBytes};
     }
@@ -133,6 +133,13 @@ private slots:
     } else {
       qDebug() << "rejected connection due to limits";
     }
+  }
+
+  // #FIXME: never called..
+  void clientDisconnected() {
+    auto client = static_cast<Client*>(sender());
+
+    qDebug() << client->getPlayer()->getName() << "disconnected";
   }
 
 public:
