@@ -49,7 +49,6 @@ void LobbyFrame::initClient(const QString& name, const QString& ip) {
 }
 
 void LobbyFrame::onJoined(QVector<Player> players) {
-  qDebug() << "JOINED!" << players.size();
   foreach (auto player, players) {
     addPlayer(player);
   }

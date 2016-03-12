@@ -130,6 +130,8 @@ struct msg::AuthConfirm: public Base {
 
 struct msg::PlayerList: public Base {
   PlayerList(Id id, ClientsIter clients);
+
+  static int batchSize(ClientsIter clients);
 };
 
 struct msg::PrivateText: public Base {

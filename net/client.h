@@ -9,7 +9,6 @@
 #include <qdebug.h>
 #include <memory>
 
-#include "net/message.h"
 #include "ui/messenger.h"
 #include "net/messages/header.h"
 #include "net/socket.h"
@@ -27,8 +26,10 @@ signals:
 
 private slots:
   void recvAny() {
-    if (messageCheckout()) {
-      switch (in.getType()) {
+    msg::Header meta{socket};
+
+   if (meta.getSize() == socket->bytesAvailable() && meta.getId() == id) {
+      switch (meta.getType()) {
       case msg::Type::NEW_PLAYER:
         emit gotNewPlayer(Player::Codec::fromSocket(socket));
         break;
@@ -71,13 +72,16 @@ private slots:
   }
 
   void sendAuth() {
-    if (messageCheckout(msg::Type::AUTH_DATA_REQUEST)) {
+    msg::Header meta{socket};
+    bool isWhole = meta.getSize() == socket->bytesAvailable();
+
+    if (isWhole && meta.getType() == msg::Type::AUTH_DATA_REQUEST) {
       rebind(SLOT(sendAuth()), SLOT(recvAuthConfirm()));
 
       player->setTeam(readByte(socket));
-      socket->write(msg::AuthData{in.getId(), player->getName()});
+      socket->write(msg::AuthData{meta.getId(), player->getName()});
 
-      auth(in.getId());
+      auth(meta.getId());
     }
   }
 
@@ -159,13 +163,6 @@ private:
   void rebind(const char *toUnbind, const char *toBind) {
     disconnect(socket, SIGNAL(readyRead()), this, toUnbind);
     connect(socket, SIGNAL(readyRead()), this, toBind);
-  }
-
-  bool messageCheckout() {
-    msg::Header meta{socket};
-
-    return meta.getSize() == socket->bytesAvailable()
-        && meta.getId() == id;
   }
 
   bool messageCheckout(msg::Type expectedType) {
