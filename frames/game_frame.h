@@ -21,49 +21,11 @@ public:
   ~GameFrame();
 
   void keyReleaseEvent(QKeyEvent *event) {
-    switch (event->key()) {
-    case Qt::Key_W:
-      ctl->deactivateThrust();
-      break;
-    case Qt::Key_A:
-      ctl->deactivateRotateLeft();
-      break;
-    case Qt::Key_D:
-      ctl->deactivateRotateRight();
-      break;
-    case Qt::Key_BracketLeft:
-      ctl->deactivateFire1();
-      break;
-    default:
-      event->ignore();
-    }
+    ctl->handleKeyRelease(event->key());
   }
 
-  void keyPressEvent( QKeyEvent* event ) {
-      switch ( event->key() ) {
-      case Qt::Key_BracketLeft:
-        ctl->activateFire1();
-        break;
-
-      case Qt::Key_W:
-        ctl->activateThrust();
-        break;
-      case Qt::Key_A:
-        ctl->activateRotateLeft();
-        break;
-      case Qt::Key_D:
-        ctl->activateRotateRight();
-        break;
-      case Qt::Key_X:
-        dr->left();
-          break;
-      case Qt::Key_Y:
-        qDebug() << "y!";
-          break;
-      default:
-          event->ignore();
-          break;
-      }
+  void keyPressEvent(QKeyEvent *event) {
+    ctl->handleKeyPress(event->key());
   }
 
 private slots:

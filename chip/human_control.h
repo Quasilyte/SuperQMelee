@@ -6,48 +6,28 @@
 
 class HumanControl: public Control {
 public:
-  void activateFire1() noexcept {
-    cmd.activate(FIRE1);
+  void setCommand(qint32 bits) {
+    cmd.setBits(bits);
   }
 
-  void activateFire2() noexcept {
-    cmd.activate(FIRE2);
+  void handleKeyRelease(int keyCode) {
+    switch (keyCode) {
+    case Qt::Key_BracketLeft: cmd.deactivate(FIRE1); break;
+    case Qt::Key_BraceRight: cmd.deactivate(FIRE2); break;
+    case Qt::Key_W: cmd.deactivate(THRUST); break;
+    case Qt::Key_A: cmd.deactivate(ROTATE_LEFT); break;
+    case Qt::Key_D: cmd.deactivate(ROTATE_RIGHT); break;
+    }
   }
 
-  void activateThrust() noexcept {
-    cmd.activate(THRUST);
-  }
-
-  void activateRotateLeft() noexcept {
-    cmd.activate(ROTATE_LEFT);
-  }
-
-  void activateRotateRight() noexcept {
-    cmd.activate(ROTATE_RIGHT);
-  }
-
-  void deactivateFire1() noexcept {
-    cmd.deactivate(FIRE1);
-  }
-
-  void deactivateFire2() noexcept {
-    cmd.deactivate(FIRE2);
-  }
-
-  void deactivateThrust() noexcept {
-    cmd.deactivate(THRUST);
-  }
-
-  void deactivateRotateLeft() noexcept {
-    cmd.deactivate(ROTATE_LEFT);
-  }
-
-  void deactivateRotateRight() noexcept {
-    cmd.deactivate(ROTATE_RIGHT);
-  }
-
-  void setCommand() {
-
+  void handleKeyPress(int keyCode) {
+    switch (keyCode) {
+    case Qt::Key_BracketLeft: cmd.activate(FIRE1); break;
+    case Qt::Key_BraceRight: cmd.activate(FIRE2); break;
+    case Qt::Key_W: cmd.activate(THRUST); break;
+    case Qt::Key_A: cmd.activate(ROTATE_LEFT); break;
+    case Qt::Key_D: cmd.activate(ROTATE_RIGHT); break;
+    }
   }
 
   Command getCommand() {

@@ -26,6 +26,7 @@ namespace msg {
   class PlayerListRequest;
   class PlayerList;
   class NewPlayer;
+  class Command;
 
   enum class Type: qint8 {
     NIL_TYPE,
@@ -37,6 +38,7 @@ namespace msg {
     NEW_PLAYER,
     PRIVATE_TEXT,
     PUBLIC_TEXT,
+    COMMAND,
     UPPER_BOUND,
   };
 
@@ -158,4 +160,10 @@ struct msg::PlayerListRequest: public Base {
 
 struct msg::NewPlayer: public Base {
   NewPlayer(Id id, Player *player);
+};
+
+struct msg::Command: public Base {
+  Command(Id id, qint32 bits): Base{Type::COMMAND, id, sizeof(qint32)} {
+    bytes.append(reinterpret_cast<char*>(&bits), sizeof(qint32));
+  }
 };
