@@ -3,6 +3,6 @@
 class Constexpr {
 public:
   static constexpr int strlen(const char* s) {
-      return *s ? strlen(s + 1) + 1 : 0;
+    return *s ? strlen(s + 1) + 1 : 0;
   }
 };

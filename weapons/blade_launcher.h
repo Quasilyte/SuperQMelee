@@ -9,9 +9,8 @@ class BladeLauncher: public Weapon {
   class Bullet: public BasicBullet {
   public:
     Bullet(qreal direction, qreal x, qreal y):
-    BasicBullet{"sprites/blade.png", direction, x, y} {
+    BasicBullet{"sprites/blade.png", direction, x, y, 16.0} {
       health = 6;
-      speed = 16.0;
       damage = 4;
       lifespan = 20;
     }

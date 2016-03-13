@@ -2,20 +2,22 @@
 
 #include "weapon.h"
 #include "actors/basic_bullet.h"
+#include "actors/special_effect.h"
 
 class FusionBlaster: public Weapon {
   class Bullet: public BasicBullet {
   public:
     Bullet(qreal direction, qreal x, qreal y):
-    BasicBullet{"sprites/dreadnought_bullet1.gif", direction, x, y} {
+    BasicBullet{"sprites/dreadnought_bullet1.gif", direction, x, y, 20.0} {
       health = 6;
-      speed = 20.0;
       damage = 6;
       lifespan = 20;
     }
 
   private:
     void explode() {
+      SpecialEffect::spawn(x(), y());
+      /*
       QMovie *movie = new QMovie("sprites/explo.gif");
       QLabel *processLabel = new QLabel();
       processLabel->setMovie(movie);
@@ -24,6 +26,7 @@ class FusionBlaster: public Weapon {
       GameScene::addWidget(processLabel);
 
       QTimer::singleShot(1000, processLabel, SLOT(deleteLater()));
+      */
     }
   };
 

@@ -14,6 +14,11 @@ class GraphicsItem: public QGraphicsItem {
 public:
   using QGraphicsItem::moveBy;
 
+  GraphicsItem(const QPixmap& sprite):
+  sprite{sprite} {
+    initBoundingFromSprite();
+  }
+
   GraphicsItem(QString imagePath):
   sprite{QPixmap{imagePath}} {
     initBoundingFromSprite();
@@ -42,9 +47,9 @@ public:
   }
 
 protected:
-  QRectF boundingRect() const {
-    return bounding;
-  }
+  void setSprite(QPixmap sprite) noexcept { this->sprite = sprite; }
+
+  QRectF boundingRect() const { return bounding; }
 
   void paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget*) {
     painter->drawPixmap(bounding.left(), bounding.top(), sprite);

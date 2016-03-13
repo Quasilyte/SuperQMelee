@@ -13,19 +13,17 @@ class BasicBullet: public QObject, public GameItem {
 public slots:
   void gameTickEvent() {
     if (lifespan) {
-      foreach (auto item, collidingItems()) {
-        if (!item->isWidget()) {
-          GameItem *gameItem = static_cast<GameItem*>(item);
-          inflictDamage(gameItem, damage);
-          explode();
+      lifespan -= 1;
+      moveBy(shift.x(), shift.y());
 
+      foreach (auto item, collidingItems()) {
+        GameItem *gameItem = static_cast<GameItem*>(item);
+
+        if (gameItem->isSolid()) {
+          inflictDamage(gameItem, damage);
           GameScene::destroy(this);
-          return;
         }
       }
-
-      lifespan -= 1;
-      moveForward(speed);
     } else {
       GameScene::removeItem(this);
       delete this;
@@ -33,8 +31,8 @@ public slots:
   }
 
 public:
-  BasicBullet(QString imagePath, qreal direction, qreal x, qreal y):
-  GameItem{imagePath, direction, x, y} {}
+  BasicBullet(QString imagePath, qreal direction, qreal x, qreal y, qreal speed):
+  GameItem{imagePath, direction, x, y}, shift{Polar::point(speed, direction)} {}
 
   void onDestroy() {
     explode();
@@ -44,7 +42,7 @@ public:
   virtual void explode() {}
 
 protected:
-  qreal speed;
+  QPointF shift;
   int damage;
   int lifespan;
 };

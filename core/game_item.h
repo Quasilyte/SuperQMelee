@@ -12,6 +12,11 @@ inline void inflictDamage(GameItem *target, int damage);
 
 class GameItem: public GraphicsItem {
 public:
+  GameItem(const QPixmap& sprite, qreal x, qreal y):
+  GraphicsItem{sprite} {
+    GameScene::addItem(this, x, y);
+  }
+
   GameItem(QString imagePath, qreal degrees, qreal x, qreal y):
   GraphicsItem{imagePath, degrees} {
     GameScene::addItem(this, x, y);
@@ -24,8 +29,11 @@ public:
 
   virtual void onDestroy() {}
 
+  bool isSolid() const noexcept { return solid; }
+
 protected:
   int health;
+  bool solid = true;
 
   friend void inflictDamage(GameItem *target, int damage);
 };

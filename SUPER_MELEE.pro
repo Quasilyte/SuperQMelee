@@ -20,7 +20,9 @@ SOURCES += \
     net/clients_iter.cpp \
     net/messages/players_list.cpp \
     audio.cpp \
-    net/socket.cpp
+    net/socket.cpp \
+    equipment/engine.cpp \
+    sprite/animated_sprites.cpp
 
 HEADERS += \
     actors/vessel.h \
@@ -60,7 +62,9 @@ HEADERS += \
     net/clients_iter.h \
     audio.h \
     vessels/marauder.h \
-    weapons/blade_launcher.h
+    weapons/blade_launcher.h \
+    actors/special_effect.h \
+    sprite/animated_sprite.h
 
 FORMS += frames/forms/game_frame.ui \
     frames/forms/lobby_frame.ui

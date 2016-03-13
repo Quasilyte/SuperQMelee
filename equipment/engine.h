@@ -5,29 +5,28 @@
 
 #include <qdebug.h>
 #include <math.h>
+#include <algorithm>
 
 class Engine: public QObject {
   Q_OBJECT
 
 public slots:
   void gameTickEvent() {
-    if (speed > 0) {
-      speed -= 0.1;
-    }
+    qreal dxNormalized = normalize(passiveShift.x());
+    qreal dyNormalized = normalize(passiveShift.y());
 
-    if (abs(dx) > 0.05 || abs(dy) > 0.05) {
-      gfx->moveBy(dx, dy);
+    if (dxNormalized || dyNormalized) {
+      gfx->moveBy(dxNormalized, dyNormalized);
     }
   }
 
   void accelerate() {
-    speed += acceleration;
-    if (speed > maxSpeed) {
-      speed = maxSpeed;
-    }
+    auto activeShift = Polar::point(acceleration, gfx->rotation());
+    auto calculatedShift = activeShift + passiveShift;
 
-    dx = Polar::x(speed, gfx->rotation());
-    dy = Polar::y(speed, gfx->rotation());
+    qreal calculatedSpeed = std::min(maxSpeed, trig::hypo(calculatedShift));
+
+    passiveShift = Polar::point(calculatedSpeed, trig::angle(calculatedShift));
   }
 
 public:
@@ -37,11 +36,23 @@ public:
   }
 
 private:
+  static const qreal MIN_OFFSET;
+  static const qreal MOVE_THRESHOLD;
+
   GraphicsItem *gfx;
   qreal acceleration;
   qreal maxSpeed;
-  qreal speed = 0.0;
 
-  qreal dx;
-  qreal dy;
+  QPointF passiveShift;
+  qreal dir;
+
+  qreal normalize(qreal offset) {
+    if (offset >= MOVE_THRESHOLD) {
+      return std::max(MIN_OFFSET, offset);
+    } else if (offset <= -MOVE_THRESHOLD) {
+      return std::min(-MIN_OFFSET, offset);
+    } else {
+      return 0.0;
+    }
+  }
 };

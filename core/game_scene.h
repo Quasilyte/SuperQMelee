@@ -4,6 +4,7 @@
 #include <QGraphicsItem>
 #include <QTimer>
 
+#include <qdebug.h>
 #include <cassert>
 
 class GameItem;
@@ -48,8 +49,10 @@ public:
     assert(scene != nullptr);
     assert(timer != nullptr);
 
-    delete scene, delete timer;
-    scene = nullptr, timer = nullptr;
+    delete scene;
+    delete timer;
+    scene = nullptr;
+    timer = nullptr;
   }
 
   static void start(QGraphicsScene *scene) {

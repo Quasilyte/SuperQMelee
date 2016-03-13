@@ -6,12 +6,10 @@
 #include "net/player.h"
 #include "net/route.h"
 #include "audio.h"
-#include <unistd.h>
 
-#include <memory>
 #include <QApplication>
 
-#define LOBBY_MODE 1
+#define LOBBY_MODE 0
 
 // http://www.star-control.com/hosted/scsaga/shipspic.htm
 // BUGS:
@@ -20,6 +18,7 @@ int main(int argc, char *argv[]) {
   QApplication app{argc, argv};
   app.setStyle("gtk");
   //MediaPlayer::init();
+  AnimatedPixmaps::loadAll();
 
 # if LOBBY_MODE == 1
   LobbyFrame frame;
