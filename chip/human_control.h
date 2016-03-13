@@ -2,6 +2,7 @@
 
 #include "control.h"
 #include "command.h"
+#include "nav_bridge.h"
 
 class HumanControl: public Control {
 public:
@@ -45,8 +46,21 @@ public:
     cmd.deactivate(ROTATE_RIGHT);
   }
 
+  void setCommand() {
+
+  }
+
   Command getCommand() {
     return cmd;
+  }
+
+  void operate(NavBridge *nav) {
+    auto bits = cmd.getBits();
+
+    if (bits & ROTATE_LEFT) { nav->left(); }
+    if (bits & ROTATE_RIGHT) { nav->right(); }
+    if (bits & FIRE1) { nav->usePrimary(); }
+    if (bits & THRUST) { nav->forward(); }
   }
 
 protected:

@@ -33,7 +33,6 @@ HEADERS += \
     net/route.h \
     net/player.h \
     vessels/dreadnought.h \
-    chip/dicrect_control.h \
     weapons/weapon.h \
     core/game_scene.h \
     exceptions.h \

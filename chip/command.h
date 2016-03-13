@@ -12,8 +12,12 @@ public:
     bits &= ~mask;
   }
 
-  qint32 getBits() const {
+  qint32 getBits() const noexcept {
     return bits;
+  }
+
+  void setBits(qint32 bits) {
+    this->bits = bits;
   }
   
 private:

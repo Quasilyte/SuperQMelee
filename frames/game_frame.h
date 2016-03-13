@@ -2,7 +2,7 @@
 
 #include "net/client.h"
 #include "vessels/marauder.h"
-#include "chip/dicrect_control.h"
+#include "chip/human_control.h"
 
 #include <QMainWindow>
 #include <QKeyEvent>
@@ -75,6 +75,6 @@ private:
   Ui::GameFrame *ui;
   Client *client = nullptr;
   Marauder *dr;
-  DirectControl *ctl;
+  HumanControl *ctl;
   QTimer *timer;
 };

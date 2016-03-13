@@ -22,7 +22,7 @@ GameFrame::GameFrame(QWidget *parent):
   QImage pim("./sprites/space.jpg");
   scene->setBackgroundBrush(pim);
 
-  ctl = new DirectControl{};
+  ctl = new HumanControl{};
   dr = new Marauder{ctl};
 
   dr->setPos(32, 32);
