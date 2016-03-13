@@ -1,7 +1,6 @@
 #pragma once
 
 #include "player.h"
-#include "route.h"
 
 #include <cassert>
 #include <QString>
@@ -97,8 +96,8 @@ public:
     connect(socket, SIGNAL(disconnected()), this, SLOT(onSocketDisconnect()));
   }
 
-  Client(Socket *socket, Player *player):
-  socket{socket}, player{player} {
+  Client(msg::Id id, Socket *socket, Player *player):
+  id{id}, socket{socket}, player{player} {
     assert(socket != nullptr);
     connect(socket, SIGNAL(disconnected()), this, SLOT(onSocketDisconnect()));
   }
@@ -131,11 +130,11 @@ public:
     socket->write(msg::PrivateText{id, player->getTeam(), text});
   }
 
-  void joinServer(Route route) {
-     socket->connectToHost(route.address, route.port);
+  void joinServer(QString address) {
+     socket->connectToHost(address, cfg::PORT);
 
      if (!socket->waitForConnected(JOIN_TIMEOUT)) {
-       Messenger::warn("Connection timeout");
+       Messenger::warn("Client: connection timeout");
      }
 
      connect(socket, SIGNAL(readyRead()), this, SLOT(sendAuth()));

@@ -1,7 +1,6 @@
 #include "frames/lobby_frame.h"
 #include "ui_lobby_frame.h"
 #include "ui/messenger.h"
-#include "net/route.h"
 #include "net/socket.h"
 
 LobbyFrame::LobbyFrame(QWidget *parent):
@@ -30,7 +29,10 @@ void LobbyFrame::on_makeHostButton_clicked() {
     Messenger::warn("Enter nickname and IP, please");
   } else {
     toggleUi();
-    server = new Server{Route{ip, 8080}};
+    server = new Server{};
+    server->start(ip);
+    server->startAcceptingClients();
+    chatController = new ChatController{server};
     initClient(name, ip);
   }
 }
@@ -44,7 +46,7 @@ void LobbyFrame::initClient(const QString& name, const QString& ip) {
   client = new Client{new Socket{}};
   client->getPlayer()->setName(name);
 
-  client->joinServer(Route{ip, 8080});
+  client->joinServer(ip);
   connect(client, SIGNAL(joined(QVector<Player>)), this, SLOT(onJoined(QVector<Player>)));
 }
 
@@ -106,10 +108,13 @@ void LobbyFrame::on_disconnectButton_clicked() {
       server = nullptr;
     }
 
+    if (chatController) {
+      delete chatController;
+    }
+
     if (client) {
       delete client;
       client = nullptr;
-      // Нужно ли тут делать disconnect?
     }
   }
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "net/client.h"
-#include "net/server.h"
+#include "net/server/chat_controller.h"
 
 #include <QMainWindow>
 
@@ -32,6 +32,7 @@ private slots:
 private:
   Ui::LobbyFrame *ui;
   Server *server = nullptr;
+  ChatController *chatController = nullptr;
   Client *client = nullptr;
   unsigned playerCount = 0;
 

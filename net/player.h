@@ -68,8 +68,8 @@ public:
   }
 
   static Player fromSocket(Socket *socket) {
-    static char nameBuf[Config::NICKNAME_MAX_LEN];
-    static char ipBuf[Config::IP_MAX_LEN];
+    static char nameBuf[cfg::NICKNAME_MAX_LEN];
+    static char ipBuf[cfg::IP_MAX_LEN];
 
     auto nameLen = readByte(socket);
     socket->read(nameBuf, nameLen);

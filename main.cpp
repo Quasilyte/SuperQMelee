@@ -1,7 +1,6 @@
 #include "frames/game_frame.h"
 #include "frames/lobby_frame.h"
 
-#include "net/server.h"
 #include "net/client.h"
 #include "net/player.h"
 #include "net/route.h"
@@ -9,7 +8,7 @@
 
 #include <QApplication>
 
-#define LOBBY_MODE 0
+#define LOBBY_MODE 1
 
 // http://www.star-control.com/hosted/scsaga/shipspic.htm
 // BUGS:

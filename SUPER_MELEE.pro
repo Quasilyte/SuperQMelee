@@ -28,9 +28,7 @@ HEADERS += \
     actors/vessel.h \
     core/graphics_item.h \
     core/game_item.h \
-    net/server.h \
     net/client.h \
-    net/route.h \
     net/player.h \
     vessels/dreadnought.h \
     weapons/weapon.h \
@@ -55,6 +53,7 @@ HEADERS += \
     net/conn/connection.h \
     net/utils.h \
     net/config.h \
+    net/server/chat_controller.h \
     utils/constexpr.h \
     net/messages/header.h \
     net/socket.h \
@@ -63,7 +62,8 @@ HEADERS += \
     vessels/marauder.h \
     weapons/blade_launcher.h \
     actors/special_effect.h \
-    sprite/animated_sprite.h
+    sprite/animated_sprite.h \
+    net/server/server.h
 
 FORMS += frames/forms/game_frame.ui \
     frames/forms/lobby_frame.ui
