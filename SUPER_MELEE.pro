@@ -10,62 +10,63 @@ TARGET = SUPER_MELEE
 TEMPLATE = app
 
 SOURCES += \
-    main.cpp \
-    frames/game_frame.cpp \
-    core/battle_scene.cpp \
-    frames/lobby_frame.cpp \
-    actors/vessel.cpp \
-    core/game_scene.cpp \
-    net/server.cpp \
-    net/clients_iter.cpp \
-    net/messages/players_list.cpp \
-    audio.cpp \
-    net/socket.cpp \
-    equipment/engine.cpp \
-    sprite/animated_sprites.cpp
+    src/main.cpp \
+    src/frames/game_frame.cpp \
+    src/core/battle_scene.cpp \
+    src/frames/lobby_frame.cpp \
+    src/actors/vessel.cpp \
+    src/core/game_scene.cpp \
+    src/net/server.cpp \
+    src/net/clients_iter.cpp \
+    src/net/messages/players_list.cpp \
+    src/audio.cpp \
+    src/net/socket.cpp \
+    src/equipment/engine.cpp \
+    src/sprite/animated_sprites.cpp
 
+INCLUDEPATH += src/
 HEADERS += \
-    actors/vessel.h \
-    core/graphics_item.h \
-    core/game_item.h \
-    net/client.h \
-    net/player.h \
-    vessels/dreadnought.h \
-    weapons/weapon.h \
-    core/game_scene.h \
-    exceptions.h \
-    utils/cyclic_value.h \
-    utils/polar.h \
-    utils/bounded_value.h \
-    frames/lobby_frame.h \
-    frames/game_frame.h \
-    ui/messenger.h \
-    chip/command.h \
-    chip/control.h \
-    chip/human_control.h \
-    chip/random_control.h \
-    nav_bridge.h \
-    equipment/engine.h \
-    equipment/battery.h \
-    weapons/fusion_blaster.h \
-    actors/basic_bullet.h \
-    net/conn/client_connection.h \
-    net/conn/connection.h \
-    net/utils.h \
-    net/config.h \
-    net/server/chat_controller.h \
-    utils/constexpr.h \
-    net/messages/header.h \
-    net/socket.h \
-    net/clients_iter.h \
-    audio.h \
-    vessels/marauder.h \
-    weapons/blade_launcher.h \
-    actors/special_effect.h \
-    sprite/animated_sprite.h \
-    net/server/server.h \
-    utils/defs.h
+    src/actors/vessel.h \
+    src/core/graphics_item.h \
+    src/core/game_item.h \
+    src/net/client.h \
+    src/net/player.h \
+    src/vessels/dreadnought.h \
+    src/weapons/weapon.h \
+    src/core/game_scene.h \
+    src/exceptions.h \
+    src/utils/cyclic_value.h \
+    src/utils/polar.h \
+    src/utils/bounded_value.h \
+    src/frames/lobby_frame.h \
+    src/frames/game_frame.h \
+    src/ui/messenger.h \
+    src/chip/command.h \
+    src/chip/control.h \
+    src/chip/human_control.h \
+    src/chip/random_control.h \
+    src/nav_bridge.h \
+    src/equipment/engine.h \
+    src/equipment/battery.h \
+    src/weapons/fusion_blaster.h \
+    src/actors/basic_bullet.h \
+    src/net/conn/client_connection.h \
+    src/net/conn/connection.h \
+    src/net/utils.h \
+    src/net/config.h \
+    src/net/server/chat_controller.h \
+    src/utils/constexpr.h \
+    src/net/messages/header.h \
+    src/net/socket.h \
+    src/net/clients_iter.h \
+    src/audio.h \
+    src/vessels/marauder.h \
+    src/weapons/blade_launcher.h \
+    src/actors/special_effect.h \
+    src/sprite/animated_sprite.h \
+    src/net/server/server.h \
+    src/utils/defs.h
 
-FORMS += frames/forms/game_frame.ui \
-    frames/forms/lobby_frame.ui
+FORMS += forms/game_frame.ui \
+    forms/lobby_frame.ui
 

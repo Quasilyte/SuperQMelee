@@ -1,6 +1,10 @@
-* move all sources to src/
-* implement collision controller and free objects (bullets) from collision checkings
-* object should never "delete this", naked new should be avoided too
-* image caching
-* audio caching
-* improve server/controllers idea
+TASKS
+ + move all sources to src/
+ - implement collision controller and free objects (bullets) from collision checkings
+ - object should never "delete this", naked new should be avoided too
+ - image caching
+ - audio caching
+ - improve server/controllers idea
+
+BUGS
+ * disconnect + connect from chat = crash
