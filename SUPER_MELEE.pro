@@ -1,14 +1,19 @@
-QMAKE_CXXFLAGS += -std=c++14
-
-QT += core gui network # multimedia
-# LIBS += -L/home/quasilyte/STUDY/qt/super_melee/build-SUPER_MELEE-Desktop-Debug/ -lQtMultimedia
-# INCLUDEPATH += /usr/include/x86_64-linux-gnu/qt5/
-
-LIBS += -lvlc
-
+# app settings: {
 TARGET = SUPER_MELEE
 TEMPLATE = app
+# }
 
+# compilation settings: {
+QMAKE_CXXFLAGS += -std=c++14
+INCLUDEPATH += src/
+# }
+
+# libs & deps: {
+QT += core gui network
+LIBS += -lvlc
+# }
+
+# sources & headers: {
 SOURCES += \
     src/actors/vessel.cpp \
     src/audio.cpp \
@@ -24,7 +29,6 @@ SOURCES += \
     src/net/socket.cpp \
     src/sprite/animated_sprites.cpp
 
-INCLUDEPATH += src/
 HEADERS += \
 src/actors/basic_bullet.h \
     src/actors/special_effect.h \
@@ -66,7 +70,9 @@ src/actors/basic_bullet.h \
     src/weapons/blade_launcher.h \
     src/weapons/fusion_blaster.h \
     src/weapons/weapon.h
+# }
 
+# ui: {
 FORMS += forms/game_frame.ui \
     forms/lobby_frame.ui
-
+# }
