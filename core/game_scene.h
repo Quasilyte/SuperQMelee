@@ -4,6 +4,8 @@
 #include <QGraphicsItem>
 #include <QTimer>
 
+#include "utils/defs.h"
+
 #include <qdebug.h>
 #include <cassert>
 
@@ -38,7 +40,7 @@ public:
   static void destroy(GameItem *item);
 
   static void connect(QObject *item) {
-    QObject::connect(timer, SIGNAL(timeout()), item, SLOT(gameTickEvent()));
+    from(timer, SIGNAL(timeout())) to(item, SLOT(gameTickEvent()));
   }
 
   static void disconnect(QObject *item) {

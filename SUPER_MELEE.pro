@@ -63,7 +63,8 @@ HEADERS += \
     weapons/blade_launcher.h \
     actors/special_effect.h \
     sprite/animated_sprite.h \
-    net/server/server.h
+    net/server/server.h \
+    utils/defs.h
 
 FORMS += frames/forms/game_frame.ui \
     frames/forms/lobby_frame.ui

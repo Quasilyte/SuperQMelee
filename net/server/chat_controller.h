@@ -5,6 +5,7 @@
 #include "net/client.h"
 
 #include "server.h"
+#include "utils/defs.h"
 
 #include <cassert>
 
@@ -33,10 +34,8 @@ private slots:
 
 public:
   ChatController(Server *server): server{server} {
-    connect(
-      server, SIGNAL(incomingMessage(msg::Header, Socket*, Client*)),
-      this, SLOT(handleIncomingMessage(msg::Header, Socket*, Client*))
-    );
+    from(server, SIGNAL(incomingMessage(msg::Header, Socket*, Client*)))
+    to(this, SLOT(handleIncomingMessage(msg::Header,Socket*,Client*)));
   }
 
 private:

@@ -8,7 +8,13 @@
 
 #include <QApplication>
 
-#define LOBBY_MODE 1
+#define LOBBY_MODE 0
+
+/*
+
+
+
+*/
 
 // http://www.star-control.com/hosted/scsaga/shipspic.htm
 // BUGS:
