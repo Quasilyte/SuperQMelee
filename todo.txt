@@ -5,6 +5,8 @@ TASKS
  - image caching
  - audio caching
  - improve server/controllers idea
+ - move not inlineable methods to cpp files
+ - move includes needed in cpp files in there; speed up compile time
 
 BUGS
  * disconnect + connect from chat = crash
